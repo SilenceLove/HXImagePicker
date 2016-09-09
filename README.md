@@ -4,7 +4,7 @@
 
 ##手动导入：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
 
-![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/xuanzeqi.gif)
+![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)
 
 例子: 
 在有导航栏的控制器里需要设置设个这两个属性
