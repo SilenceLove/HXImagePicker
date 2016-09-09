@@ -6,6 +6,8 @@
 
 ![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)
 
+![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/one.png)
+
 例子: 
 在有导航栏的控制器里需要设置设个这两个属性
 
@@ -86,6 +88,8 @@ addPhotoView.selectNum;
     [self.view layoutSubviews];
 }
 ```
+
+![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/two.png)
 
 项目里面还有视频压缩写入沙盒目录的代码可以参考下
 具体代码看请下载项目
