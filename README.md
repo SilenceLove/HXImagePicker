@@ -1,7 +1,11 @@
 # HXImagePicker
-模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
+
+##模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
 
 ##手动导入：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
+
+![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/xuanzeqi.gif)
+
 例子: 
 在有导航栏的控制器里需要设置设个这两个属性
 
@@ -29,7 +33,7 @@ addPhotoView.margin_Left = 10;
 // 每个item间隔的距离  如果最小不能小于5   不设置,默认为5
 addPhotoView.lineSpacing = 5;
 
-//录制视频时最大秒数   默认为60;
+// 录制视频时最大秒数   默认为60;
 addPhotoView.videoMaximumDuration = 60.f;
 
 addPhotoView.delegate = self;
@@ -37,7 +41,7 @@ addPhotoView.backgroundColor = [UIColor whiteColor];
 addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
 [self.view addSubview:addPhotoView];
 
-//当前选择的个数
+// 当前选择的个数
 addPhotoView.selectNum;
 ```
 
