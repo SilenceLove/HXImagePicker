@@ -30,7 +30,7 @@
     // 只选择照片
     HX_AddPhotoView *addPhotoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectPhoto];
     
-    // 每行最多 多少个
+    // 每行最大个数
     addPhotoView.lineNum = 3;
     
     // collectionView 距离顶部的距离  底部与顶部一样  不设置,默认为0
@@ -100,6 +100,25 @@
 // 开始写入
 - (void)writeVideo
 {
+    if (!self.videoUrl) {
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+        UIView *view = [[UIView alloc] init];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_ar_failed@2x.png"]];
+        [view addSubview:imageView];
+        
+        view.frame = CGRectMake(0, 0, imageView.image.size.width, imageView.image.size.height + 10);
+        
+        hud.customView = view;
+        hud.mode = MBProgressHUDModeCustomView;
+        hud.labelText = @"视频url不能为空!";
+        hud.margin = 10.f;
+        hud.removeFromSuperViewOnHide = YES;
+        
+        [hud hide:YES afterDelay:1.5f];
+        return;
+    }
+    
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
     
     hud.labelText = @"正在写入";

@@ -21,7 +21,7 @@ self.navigationController.navigationBar.translucent = YES;
 ```objc
 HX_AddPhotoView *addPhotoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectPhoto];
 
-// 每行最多 多少个
+// 每行最大个数
 addPhotoView.lineNum = 3;
 
 // collectionView 距离顶部的距离  底部与顶部一样  不设置,默认为0
