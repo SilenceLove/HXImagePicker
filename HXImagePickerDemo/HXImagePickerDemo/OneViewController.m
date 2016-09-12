@@ -222,7 +222,6 @@
     }
 }
 
-
 - (void)updateViewFrame:(CGRect)frame WithView:(UIView *)view
 {
     [self.view layoutSubviews];
