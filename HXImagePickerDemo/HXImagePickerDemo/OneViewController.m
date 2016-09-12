@@ -30,7 +30,7 @@
     // 只选择照片
     HX_AddPhotoView *addPhotoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectPhoto];
     
-    // 每行最大个数
+    // 每行最大个数  不设置默认为4
     addPhotoView.lineNum = 3;
     
     // collectionView 距离顶部的距离  底部与顶部一样  不设置,默认为0
@@ -133,6 +133,7 @@
         hud.labelText = @"写入成功";
         hud.mode = MBProgressHUDModeCustomView;
         [hud hide:YES afterDelay:1.f];
+        self.videoUrl = nil;
     } failure:^{
         hud.labelText = @"写入失败";
         [hud hide:YES afterDelay:3.f];

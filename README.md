@@ -1,5 +1,7 @@
 # HXImagePicker
 
+# 喜欢的话可以给个star✨么?😘
+
 ##模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
 
 ##手动导入：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
@@ -21,7 +23,7 @@ self.navigationController.navigationBar.translucent = YES;
 ```objc
 HX_AddPhotoView *addPhotoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectPhoto];
 
-// 每行最大个数
+// 每行最大个数   不设置默认为4
 addPhotoView.lineNum = 3;
 
 // collectionView 距离顶部的距离  底部与顶部一样  不设置,默认为0
