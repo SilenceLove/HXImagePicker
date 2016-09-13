@@ -4,7 +4,8 @@
 
 ##模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
 
-##手动导入：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
+##【手动导入】：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
+##【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'
 
 ![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)
 

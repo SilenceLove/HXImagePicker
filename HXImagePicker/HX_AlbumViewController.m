@@ -251,6 +251,7 @@ static NSString *albumCellId = @"cellId";
     vc.allPhotosArray = self.allImagesAy[indexPath.row];
     vc.maxNum = self.maxNum;
     vc.cellIndex = indexPath.row;
+    vc.ifVideo = self.ifVideo;
     [self.navigationController pushViewController:vc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
