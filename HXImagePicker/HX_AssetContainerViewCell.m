@@ -12,21 +12,21 @@
 @property (weak, nonatomic) UIScrollView *scrollView;
 @property (weak, nonatomic) UIImageView *imageView;
 @property (assign, nonatomic) CGPoint imageCenter;
-@property (assign, nonatomic) BOOL ifAddVideo;
+//@property (assign, nonatomic) BOOL ifAddVideo;
 @end
 
 @implementation HX_AssetContainerViewCell
 
-- (MPMoviePlayerController *)player
-{
-    if (!_player) {
-        _player = [[MPMoviePlayerController alloc] init];
-        _player.view.frame = self.bounds;
-        _player.view.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        _player.controlStyle = MPMovieControlStyleNone;
-    }
-    return _player;
-}
+//- (MPMoviePlayerController *)player
+//{
+//    if (!_player) {
+//        _player = [[MPMoviePlayerController alloc] init];
+//        _player.view.frame = self.bounds;
+//        _player.view.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+//        _player.controlStyle = MPMovieControlStyleNone;
+//    }
+//    return _player;
+//}
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -38,9 +38,9 @@
 
 - (void)setup
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerPlaybackFinished:) name:MPMoviePlayerPlaybackDidFinishNotification object:self.player];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerPlaybackFinished:) name:MPMoviePlayerPlaybackDidFinishNotification object:self.player];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerPlaybackStateChange:) name:MPMoviePlayerPlaybackStateDidChangeNotification object:self.player];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerPlaybackStateChange:) name:MPMoviePlayerPlaybackStateDidChangeNotification object:self.player];
     
     CGFloat width = self.frame.size.width;
     CGFloat height = self.frame.size.height;
@@ -50,6 +50,7 @@
 //    scrollView.minimumZoomScale = 1.0;     // 最小缩放值
 //    scrollView.maximumZoomScale = 2.0;    // 最大缩放值
 //    [scrollView setZoomScale:scrollView.minimumZoomScale];
+    
     scrollView.contentSize = CGSizeMake(width, height);
     scrollView.userInteractionEnabled = YES;
     [scrollView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didImgClick:)]];
@@ -61,17 +62,17 @@
     [scrollView addSubview:imageView];
     _imageView = imageView;
     
-    UIButton *playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    
-    [playBtn setImage:[UIImage imageNamed:@"qmusic_player_pause_default@2x.png"] forState:UIControlStateNormal];
-    [playBtn setImage:[UIImage imageNamed:@"qmusic_player_play_default@2x.png"] forState:UIControlStateSelected];
-    [playBtn addTarget:self action:@selector(playVideoClick:) forControlEvents:UIControlEventTouchUpInside];
-    
-    playBtn.frame = CGRectMake(0, 0, width, width);
-    playBtn.center = CGPointMake(width / 2, height / 2);
-    
-    [self.contentView addSubview:playBtn];
-    _playBtn = playBtn;
+//    UIButton *playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+//    
+//    [playBtn setImage:[UIImage imageNamed:@"qmusic_player_pause_default@2x.png"] forState:UIControlStateNormal];
+//    [playBtn setImage:[UIImage imageNamed:@"qmusic_player_play_default@2x.png"] forState:UIControlStateSelected];
+//    [playBtn addTarget:self action:@selector(playVideoClick:) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    playBtn.frame = CGRectMake(0, 0, width, width);
+//    playBtn.center = CGPointMake(width / 2, height / 2);
+//    
+//    [self.contentView addSubview:playBtn];
+//    _playBtn = playBtn;
 }
 
 - (void)didImgClick:(UITapGestureRecognizer *)tap
@@ -81,6 +82,7 @@
     }
 }
 
+/*
 - (void)playVideoClick:(UIButton *)button
 {
     button.selected = !button.selected;
@@ -94,22 +96,29 @@
         [self.player pause];
     }
 }
+*/
+
 /**
  *  播放完成
  *
  *  @param notification 通知对象
  */
+
+/*
 -(void)mediaPlayerPlaybackFinished:(NSNotification *)notification{
     _playBtn.selected = NO;
     [self.player.view removeFromSuperview];
     _ifAddVideo = NO;
 }
+*/
 
 /**
  *  播放状态改变，注意播放完成时的状态是暂停
  *
  *  @param notification 通知对象
  */
+
+/*
 -(void)mediaPlayerPlaybackStateChange:(NSNotification *)notification{
     switch (self.player.playbackState) {
         case MPMoviePlaybackStatePlaying: // 正在播放
@@ -126,6 +135,7 @@
             break;
     }
 }
+*/
 
 #pragma mark - 返回需要缩放的控件
 //- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
@@ -150,16 +160,16 @@
     CGFloat imgWidth = model.imageSize.width;
     CGFloat imgHeight = model.imageSize.height;
     
-    [self.player stop];
-    [self.player.view removeFromSuperview];
-    _ifAddVideo = NO;
-    _playBtn.selected = NO;
-    if (model.type == HX_Video) {
-        _playBtn.hidden = NO;
-        self.player.contentURL = model.url;
-    }else {
-        _playBtn.hidden = YES;
-    }
+//    [self.player stop];
+//    [self.player.view removeFromSuperview];
+//    _ifAddVideo = NO;
+//    _playBtn.selected = NO;
+//    if (model.type == HX_Video) {
+//        _playBtn.hidden = NO;
+//        self.player.contentURL = model.url;
+//    }else {
+//        _playBtn.hidden = YES;
+//    }
     
     if (imgWidth < width) {
         _imageView.frame = CGRectMake(0, 0, imgWidth, imgHeight);
@@ -237,10 +247,10 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    _playBtn.selected = NO;
-    [self.player.view removeFromSuperview];
-    _ifAddVideo = NO;
+//    [[NSNotificationCenter defaultCenter] removeObserver:self];
+//    _playBtn.selected = NO;
+//    [self.player.view removeFromSuperview];
+//    _ifAddVideo = NO;
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 

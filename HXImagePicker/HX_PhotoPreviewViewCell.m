@@ -199,7 +199,7 @@
         __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-            CGImageRef thumbnail = [model.asset aspectRatioThumbnail];
+            CGImageRef thumbnail = [model.asset thumbnail];
             
             UIImage *image = [UIImage imageWithCGImage:thumbnail scale:2.0 orientation:UIImageOrientationUp];
             

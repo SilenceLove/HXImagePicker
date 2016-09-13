@@ -10,8 +10,8 @@
 #import "HX_PhotoModel.h"
 #import <MediaPlayer/MediaPlayer.h>
 @interface HX_AssetContainerViewCell : UICollectionViewCell
-@property (weak, nonatomic) UIButton *playBtn;
+//@property (weak, nonatomic) UIButton *playBtn;
 @property (strong, nonatomic) HX_PhotoModel *model;
 @property (copy, nonatomic) void(^didImgBlock)();
-@property (strong, nonatomic) MPMoviePlayerController *player;
+//@property (strong, nonatomic) MPMoviePlayerController *player;
 @end
