@@ -445,8 +445,6 @@
 {
     if (VERSION < 8.0f) {
         [self.player.view removeFromSuperview];
-    }else {
-        [self.playVideo removeTimeObserver:self];
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
