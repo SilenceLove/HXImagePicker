@@ -12,7 +12,7 @@
 <table border = "1">
 <tr>
     <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif" width = "240" height = "425"></td>
-    <td><img src = "" width = "50" height = "425"></td>
+    <td><img width = "50" height = "425"></td>
     <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/shipin.gif" width = "240" height = "425"></td>
 </tr>
 </table>
@@ -29,6 +29,7 @@
 - SelectPhoto,        // 只选择图片
 - SelectVideo,        // 只选择视频        选择视频的时候内部强制的只能选择一个
 - SelectPhotoAndVideo // 图片视频同时选择
+
 #代码部分
 ```objc
 HX_AddPhotoView *addPhotoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectPhoto];
@@ -51,7 +52,6 @@ addPhotoView.videoMaximumDuration = 60.f;
 // 自定义相册的名称 - 不设置默认为自定义相册
 addPhotoView.customName = @"";
 
-
 addPhotoView.delegate = self;
 addPhotoView.backgroundColor = [UIColor whiteColor];
 addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
@@ -61,7 +61,7 @@ addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
 addPhotoView.selectNum;
 ```
 
-- /**  当选择类型为 SelectPhoto 或 SelectPhotoAndVideo 时 请用这个block  */
+- 当选择类型为 SelectPhoto 或 SelectPhotoAndVideo 时 请用这个block 
 
 ```objc
 [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
@@ -102,7 +102,7 @@ addPhotoView.selectNum;
     }];
 }];
 ```
-- /**  当选择类型为 SelectVideo 时 请用这个block  */
+- 当选择类型为 SelectVideo 时 请用这个block
 
 ```objc
 [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
@@ -141,7 +141,7 @@ addPhotoView.selectNum;
 }];
 ```
 
-- /**  代理---- 当每行个数超过最大限制的个数时 此方法就会更新AddPhotoView的高度  */
+- 代理->当每行个数超过最大限制的个数时 此方法就会更新AddPhotoView的高度
 
 ```objc
 - (void)updateViewFrame:(CGRect)frame
