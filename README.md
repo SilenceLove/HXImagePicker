@@ -3,23 +3,26 @@
 # 喜欢的话可以给个star✨么?😘
 
 ##模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
-h1{
-color : red;
-}
-<h1>当使用相机的时候会将拍下的照片和视频存放到自定义相册中</h1>
+
+<h3 color = red>当使用相机的时候会将拍下的照片和视频存放到自定义相册中</h3>
 
 【手动导入】：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"</br>
 【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'
 
-![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)
-![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/shipin.gif)
-例子: 
-在有导航栏的控制器里需要设置设个这两个属性
+<table border = "1">
+<tr>
+    <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif" width = "400" height = "600"></td>
+    <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/shipin.gif" width = "400" height = "600"></td>
+</tr>
+</table>
+</br>
+##例子: 
+- 在有导航栏的控制器里需要设置设个这两个属性
 
 self.automaticallyAdjustsScrollViewInsets = NO; 
 self.navigationController.navigationBar.translucent = YES;
 
-当一个界面有两个选择器的时候最好设置约束
+- 当一个界面有两个选择器的时候最好设置约束
 
 ##SelectPhoto,        // 只选择图片
 ##SelectVideo,        // 只选择视频        选择视频的时候内部强制的只能选择一个
