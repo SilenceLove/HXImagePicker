@@ -10,6 +10,8 @@
 #import "HX_PhotoModel.h"
 #import "HX_AssetManager.h"
 #import "MBProgressHUD.h"
+
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 @interface HX_PhotoPreviewViewCell ()
 
 @property (weak, nonatomic) UIImageView *imgeView;
@@ -194,23 +196,40 @@
         _SB.hidden = NO;
     }
     
-    if (!model.image) {
-        _imgeView.image = [UIImage imageWithCGImage:[model.asset thumbnail] scale:2.0 orientation:UIImageOrientationUp];
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    __weak typeof(self) weakSelf = self;
+    
+    if (VERSION < 8.0f) {
+        if (!model.image) {
+            _imgeView.image = [UIImage imageWithCGImage:[model.asset thumbnail] scale:2.0 orientation:UIImageOrientationUp];
             
-            CGImageRef thumbnail = [model.asset thumbnail];
-            
-            UIImage *image = [UIImage imageWithCGImage:thumbnail scale:2.0 orientation:UIImageOrientationUp];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                
+                CGImageRef thumbnail = [model.asset thumbnail];
+                
+                UIImage *image = [UIImage imageWithCGImage:thumbnail scale:2.0 orientation:UIImageOrientationUp];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    weakSelf.imgeView.image = image;
+                    model.image = image;
+                });
+            });
+        }else {
+            _imgeView.image = model.image;
+        }
+    }else {
+        CGFloat width = self.frame.size.width;
+        
+        if (!model.image) {
+            [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(width * 2.0f, width * 2.0f) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                 weakSelf.imgeView.image = image;
                 model.image = image;
-            });
-        });
-    }else {
-        _imgeView.image = model.image;
+                
+            }];
+        }else {
+            self.imgeView.image = model.image;
+        }
     }
+    
     
     // 因为有个未知bug  所有这里做了这个判断
     if ([HX_AssetManager sharedManager].selectedPhotos.count == 0) {

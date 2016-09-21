@@ -33,19 +33,28 @@ typedef enum{
 
 @property (assign, nonatomic) BOOL ifOriginal;
 
-@property (copy, nonatomic) NSString *totalBytes;
+//@property (copy, nonatomic) NSString *totalBytes;
 
+/**  存放视频压缩后的地址  */
+@property (strong, nonatomic) NSMutableArray *videoFileNames;
+
+/**  自定义相册的名称  */
+@property (copy, nonatomic) NSString *customName;
 
 + (instancetype)sharedManager;
-+ (void)destruction;
+
 /**  获取所有相册信息  */
 - (void)getAllAlbumWithStart:(void(^)())start WithEnd:(void(^)(NSArray *allAlbum,NSArray *photosAy))album WithFailure:(void(^)(NSError *error))failure;
 
-- (void)IOS8UpGetAllAlbumWithStart:(void(^)())start WithEnd:(void(^)(NSArray *allAlbum,NSArray *photosAy))album WithFailure:(void(^)(NSError *error))failure;
+/**  根据PHAsset获取图片信息  */
+- (void)accessToImageAccordingToTheAsset:(PHAsset *)asset size:(CGSize)size resizeMode:(PHImageRequestOptionsResizeMode)resizeMode completion:(void(^)(UIImage *image,NSDictionary *info))completion;
 
 - (void)savePhotoWithImage:(UIImage *)image completion:(void(^)())completion WithError:(void(^)())error;
 - (void)getJustTakePhotosWithCompletion:(void(^)(NSArray *array))completion;
 
 - (void)savePhotoWithVideo:(NSURL *)url completion:(void(^)())completion WithError:(void(^)())error;
 - (void)getJustTakeVideoWithCompletion:(void(^)(NSArray *array))completion;
+
+
+- (void)getPhotosBytes:(void(^)(NSString *bytes))by;
 @end

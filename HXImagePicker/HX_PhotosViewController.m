@@ -150,7 +150,9 @@ static NSString *cellFooterId = @"photoCellFooterId";
     line.backgroundColor = [UIColor lightGrayColor];
     [bottomView addSubview:line];
     
-    if ([HX_AssetManager sharedManager].type == HX_SelectVideo) {
+    HX_AssetManager *assetManager = [HX_AssetManager sharedManager];
+    
+    if (assetManager.type == HX_SelectVideo) {
         bottomView.hidden = YES;
         collectionView.frame = CGRectMake(0, 5, width, heght - 10);
     }
@@ -162,8 +164,8 @@ static NSString *cellFooterId = @"photoCellFooterId";
     [collectionView setContentOffset:CGPointMake(0, maxY) animated:NO];
     
     if (!self.ifVideo) {
-        for (int i = 0; i < [HX_AssetManager sharedManager].selectedPhotos.count; i ++) {
-            HX_PhotoModel *modelPH = [HX_AssetManager sharedManager].selectedPhotos[i];
+        for (int i = 0; i < assetManager.selectedPhotos.count; i ++) {
+            HX_PhotoModel *modelPH = assetManager.selectedPhotos[i];
             
             if (modelPH.tableViewIndex == _cellIndex) {
                 [collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:modelPH.collectionViewIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
@@ -182,9 +184,12 @@ static NSString *cellFooterId = @"photoCellFooterId";
     _confirmBtn.enabled = bl;
     if (count > 0) {
         [_confirmBtn setTitle:[NSString stringWithFormat:@"确定(%ld)",count] forState:UIControlStateNormal];
-        _originalBtn.selected = [HX_AssetManager sharedManager].ifOriginal;
-        if ([HX_AssetManager sharedManager].ifOriginal) {
-            [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+        _originalBtn.selected = assetManager.ifOriginal;
+        if (assetManager.ifOriginal) {
+            __weak typeof(self) weakSelf = self;
+            [assetManager getPhotosBytes:^(NSString *bytes) {
+                [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+            }];
         }
     }else {
         [_confirmBtn setTitle:@"确定" forState:UIControlStateNormal];
@@ -193,8 +198,8 @@ static NSString *cellFooterId = @"photoCellFooterId";
         _originalBtn.selected = NO;
     }
     
-    for (int i = 0 ; i < [HX_AssetManager sharedManager].selectedPhotos.count; i++) {
-        HX_PhotoModel *model = [HX_AssetManager sharedManager].selectedPhotos[i];
+    for (int i = 0 ; i < assetManager.selectedPhotos.count; i++) {
+        HX_PhotoModel *model = assetManager.selectedPhotos[i];
         model.index = i;
     }
 }
@@ -236,7 +241,10 @@ static NSString *cellFooterId = @"photoCellFooterId";
         
         // 判断是否点击了原图按钮
         if (manager.ifOriginal) {
-            [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+            __weak typeof(self) weakSelf = self;
+            [manager getPhotosBytes:^(NSString *bytes) {
+                [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+            }];
         }
     }else {
         // 没有内容就初始化
@@ -267,7 +275,10 @@ static NSString *cellFooterId = @"photoCellFooterId";
     button.selected = !button.selected;
     [HX_AssetManager sharedManager].ifOriginal = button.selected;
     if (button.selected) {
-        [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+        __weak typeof(self) weakSelf = self;
+        [[HX_AssetManager sharedManager] getPhotosBytes:^(NSString *bytes) {
+            [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+        }];
     }else {
         [_originalBtn setTitle:@"原图" forState:UIControlStateNormal];
     }
@@ -284,6 +295,9 @@ static NSString *cellFooterId = @"photoCellFooterId";
     __weak typeof(self) weakSelf = self;
     [vc setDidOriginalBlock:^() {
         [weakSelf didOriginalClick:weakSelf.originalBtn];
+    }];
+    [vc setDidRgihtBtnBlock:^(NSInteger index) {
+        [weakSelf.collectionView reloadData];
     }];
 }
 

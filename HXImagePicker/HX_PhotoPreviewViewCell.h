@@ -11,7 +11,6 @@
 @class HX_PhotoModel;
 @interface HX_PhotoPreviewViewCell : UICollectionViewCell
 @property (strong, nonatomic) HX_PhotoModel *model;
-@property (strong, nonatomic) UIImage *image;
 @property (assign, nonatomic) NSInteger index;
 @property (copy, nonatomic) void(^didPHBlock)(UICollectionViewCell *cell);
 @property (assign, nonatomic) NSInteger maxNum;

@@ -13,7 +13,10 @@
 #import "HX_AlbumModel.h"
 #import "MBProgressHUD.h"
 #import "HX_VideoManager.h"
- @interface HX_AlbumViewController ()<UITableViewDataSource,UITableViewDelegate>
+
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
+
+@interface HX_AlbumViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) UITableView *tableView;
 @property (strong, nonatomic) NSMutableArray *allAlbumArray;
 @property (strong, nonatomic) NSMutableArray *allImagesAy;
@@ -85,14 +88,49 @@ static NSString *albumCellId = @"cellId";
             
             if (assetManager.selectedPhotos.count == 0) {
                 if (weakSelf.allImagesAy.count != 0) {
-                    HX_AlbumModel *model = [weakSelf.allAlbumArray lastObject];
-                    HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
-                    vc.ifVideo = self.ifVideo;
-                    vc.title = model.albumName;
-                    vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
-                    vc.maxNum = weakSelf.maxNum;
-                    vc.cellIndex = weakSelf.allImagesAy.count - 1;
-                    [weakSelf.navigationController pushViewController:vc animated:NO];
+                    BOOL ifAllAlbum = NO;
+                    for (int i = 0; i < weakSelf.allAlbumArray.count; i++) {
+                        HX_AlbumModel *model = weakSelf.allAlbumArray[i];
+                        if ([model.albumName isEqualToString:@"所有照片"]) {
+                            HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                            vc.ifVideo = self.ifVideo;
+                            vc.title = model.albumName;
+                            vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                            vc.maxNum = weakSelf.maxNum;
+                            vc.cellIndex = i;
+                            [weakSelf.navigationController pushViewController:vc animated:NO];
+                            ifAllAlbum = YES;
+                            break;
+                        }
+                    }
+                    BOOL ifFilm = NO;
+                    if (!ifAllAlbum) {
+                        for (int i = 0; i < weakSelf.allAlbumArray.count; i++) {
+                            HX_AlbumModel *model = weakSelf.allAlbumArray[i];
+                            if ([model.albumName isEqualToString:@"相机胶卷"]) {
+                                HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                                vc.ifVideo = self.ifVideo;
+                                vc.title = model.albumName;
+                                vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                                vc.maxNum = weakSelf.maxNum;
+                                vc.cellIndex = i;
+                                [weakSelf.navigationController pushViewController:vc animated:NO];
+                                ifFilm = YES;
+                                break;
+                            }
+                        }
+                        if (!ifFilm) {
+                            HX_AlbumModel *model = weakSelf.allAlbumArray.lastObject;
+                            HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                            vc.ifVideo = self.ifVideo;
+                            vc.title = model.albumName;
+                            vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                            vc.maxNum = weakSelf.maxNum;
+                            vc.cellIndex = weakSelf.allAlbumArray.count - 1;
+                            [weakSelf.navigationController pushViewController:vc animated:NO];
+                        }
+                    }
+                    
                 }
             }else {
                 HX_PhotoModel *model = assetManager.selectedPhotos.lastObject;
@@ -122,14 +160,48 @@ static NSString *albumCellId = @"cellId";
             
             if (videoManager.selectedPhotos.count == 0) {
                 if (weakSelf.allImagesAy.count != 0) {
-                    HX_AlbumModel *model = [weakSelf.allAlbumArray lastObject];
-                    HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
-                    vc.ifVideo = self.ifVideo;
-                    vc.title = model.albumName;
-                    vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
-                    vc.maxNum = weakSelf.maxNum;
-                    vc.cellIndex = weakSelf.allImagesAy.count - 1;
-                    [weakSelf.navigationController pushViewController:vc animated:NO];
+                    BOOL ifAllAlbum = NO;
+                    for (int i = 0; i < weakSelf.allAlbumArray.count; i++) {
+                        HX_AlbumModel *model = weakSelf.allAlbumArray[i];
+                        if ([model.albumName isEqualToString:@"所有照片"]) {
+                            HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                            vc.ifVideo = self.ifVideo;
+                            vc.title = model.albumName;
+                            vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                            vc.maxNum = weakSelf.maxNum;
+                            vc.cellIndex = i;
+                            [weakSelf.navigationController pushViewController:vc animated:NO];
+                            ifAllAlbum = YES;
+                            break;
+                        }
+                    }
+                    BOOL ifFilm = NO;
+                    if (!ifAllAlbum) {
+                        for (int i = 0; i < weakSelf.allAlbumArray.count; i++) {
+                            HX_AlbumModel *model = weakSelf.allAlbumArray[i];
+                            if ([model.albumName isEqualToString:@"相机胶卷"]) {
+                                HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                                vc.ifVideo = self.ifVideo;
+                                vc.title = model.albumName;
+                                vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                                vc.maxNum = weakSelf.maxNum;
+                                vc.cellIndex = i;
+                                [weakSelf.navigationController pushViewController:vc animated:NO];
+                                ifFilm = YES;
+                                break;
+                            }
+                        }
+                        if (!ifFilm) {
+                            HX_AlbumModel *model = weakSelf.allAlbumArray.lastObject;
+                            HX_PhotosViewController *vc = [[HX_PhotosViewController alloc] init];
+                            vc.ifVideo = self.ifVideo;
+                            vc.title = model.albumName;
+                            vc.allPhotosArray = [weakSelf.allImagesAy lastObject];
+                            vc.maxNum = weakSelf.maxNum;
+                            vc.cellIndex = weakSelf.allAlbumArray.count - 1;
+                            [weakSelf.navigationController pushViewController:vc animated:NO];
+                        }
+                    }
                 }
             }else {
                 HX_PhotoModel *model = videoManager.selectedPhotos.lastObject;
@@ -223,7 +295,13 @@ static NSString *albumCellId = @"cellId";
 
     cell.model = model;
     
-    NSArray *ay = [HX_AssetManager sharedManager].selectedPhotos;
+    NSArray *ay;
+    
+    if (!self.ifVideo) {
+        ay = [HX_AssetManager sharedManager].selectedPhotos;
+    }else {
+        ay = [HX_VideoManager sharedManager].selectedPhotos;
+    }
     
     NSInteger count = 0;
     for (int i = 0; i < ay.count; i++) {
@@ -338,22 +416,33 @@ static NSString *albumCellId = @"cellId";
     _photoNumLb.frame = CGRectMake(photoNameMaxX + 10, 0, 100, 20);
     _photoNumLb.center = CGPointMake(_photoNumLb.center.x, height / 2);
     
-    if (!model.coverImage) {
-        _photoView.image = model.thumbnail;
-        
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            CGImageRef thumbnail = [model.group posterImage];
-            
-            UIImage *image = [UIImage imageWithCGImage:thumbnail scale:2.0 orientation:UIImageOrientationUp];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+    __weak typeof(self) weakSelf = self;
+    if (VERSION < 8.0f) {
+        if (!model.coverImage) {
+            _photoView.image = model.thumbnail;
+
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                CGImageRef thumbnail = [model.group posterImage];
+                
+                UIImage *image = [UIImage imageWithCGImage:thumbnail scale:2.0 orientation:UIImageOrientationUp];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    weakSelf.photoView.image = image;
+                    model.coverImage = image;
+                });
+            });
+        }else {
+            _photoView.image = model.coverImage;
+        }
+    }else {
+        if (!model.coverImage) {
+            [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(60 * 2.0f, 60 * 2.0f) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                 weakSelf.photoView.image = image;
                 model.coverImage = image;
-            });
-        });
-    }else {
-        _photoView.image = model.coverImage;
+            }];
+        }else {
+            _photoView.image = model.coverImage;
+        }
     }
 }
 

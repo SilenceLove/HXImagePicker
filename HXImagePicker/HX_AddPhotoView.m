@@ -20,7 +20,9 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
-@interface HX_AddPhotoView ()<DragCellCollectionViewDataSource,DragCellCollectionViewDelegate,UIActionSheetDelegate,UIAlertViewDelegate>
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
+
+@interface HX_AddPhotoView ()<DragCellCollectionViewDataSource,DragCellCollectionViewDelegate,UIActionSheetDelegate,UIAlertViewDelegate,MBProgressHUDDelegate>
 
 @property (weak, nonatomic) DragCellCollectionView *collectionView;
 @property (strong, nonatomic) NSMutableArray *photosAy;
@@ -28,7 +30,9 @@
 @property (strong, nonatomic) UICollectionViewFlowLayout *flowLayout;
 @property (assign, nonatomic) SelectType type;
 @property (assign, nonatomic) BOOL ifVideo;
+@property (strong, nonatomic) AVAsset *URLAsset;
 @property (strong, nonatomic) UIImagePickerController* imagePickerController;
+@property (strong, nonatomic) MBProgressHUD *HUD;
 @end
 
 static NSString *addPhotoCellId = @"cellId";
@@ -61,6 +65,19 @@ static NSString *addPhotoCellId = @"cellId";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sureSelectPhotos:) name:@"HX_SureSelectPhotosNotice" object:nil];
     }
     return self;
+}
+
+- (void)setCustomName:(NSString *)customName
+{
+    _customName = customName;
+    if (customName.length == 0) {
+        customName = @"自定义相册";
+    }
+    
+    HX_AssetManager *manager = [HX_AssetManager sharedManager];
+    manager.customName = customName;
+    HX_VideoManager *videoManager = [HX_VideoManager sharedManager];
+    videoManager.customName = customName;
 }
 
 - (NSMutableArray *)photosAy
@@ -117,11 +134,17 @@ static NSString *addPhotoCellId = @"cellId";
         NSMutableArray *array = [NSMutableArray array];
         [self.photosAy enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
             
-            [array addObject:model.asset];
+            if (VERSION < 8.0f) {
+                [array addObject:model.asset];
+            }else {
+                [array addObject:model.PH_Asset];
+            }
         }];
+        
         if (self.selectPhotos) {
-            self.selectPhotos(array.mutableCopy,[HX_AssetManager sharedManager].ifOriginal);
+            self.selectPhotos(array.mutableCopy,assetManager.videoFileNames,assetManager.ifOriginal);
         }
+        
     }else {
         self.photosAy = [NSMutableArray arrayWithArray:videoManager.selectedPhotos.mutableCopy];
         self.selectNum = videoManager.selectedPhotos.count;
@@ -129,10 +152,14 @@ static NSString *addPhotoCellId = @"cellId";
         NSMutableArray *array = [NSMutableArray array];
         [self.photosAy enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
             
-            [array addObject:model.asset];
+            if (VERSION < 8.0f) {
+                [array addObject:model.asset];
+            }else {
+                [array addObject:model.PH_Asset];
+            }
         }];
         if (self.selectVideo) {
-            self.selectVideo(array.mutableCopy);
+            self.selectVideo(array.mutableCopy,videoManager.videoFileNames);
         }
     }
     
@@ -179,7 +206,8 @@ static NSString *addPhotoCellId = @"cellId";
         HX_VideoManager *videoManager = [HX_VideoManager sharedManager];
         NSIndexPath *indexP = [weakSelf.collectionView indexPathForCell:cell];
         [weakSelf.photosAy removeObjectAtIndex:indexP.item];
-        
+        [manager.videoFileNames removeAllObjects];
+        [videoManager.videoFileNames removeAllObjects];
         if (!weakSelf.ifVideo) {
             HX_PhotoModel *model = manager.selectedPhotos[indexP.item];
             model.ifAdd = NO;
@@ -198,10 +226,15 @@ static NSString *addPhotoCellId = @"cellId";
             
             NSMutableArray *array = [NSMutableArray array];
             [manager.selectedPhotos enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
-                [array addObject:model.asset];
+                if (VERSION < 8.0f) {
+                    [array addObject:model.asset];
+                }else {
+                    [array addObject:model.PH_Asset];
+                }
+                
             }];
             if (weakSelf.selectPhotos) {
-                weakSelf.selectPhotos(array.mutableCopy,[HX_AssetManager sharedManager].ifOriginal);
+                weakSelf.selectPhotos(array.mutableCopy,manager.videoFileNames,manager.ifOriginal);
             }
             
         }else {
@@ -213,7 +246,7 @@ static NSString *addPhotoCellId = @"cellId";
                 [array addObject:model.asset];
             }];
             if (weakSelf.selectVideo) {
-                weakSelf.selectVideo(array.mutableCopy);
+                weakSelf.selectVideo(array.mutableCopy,videoManager.videoFileNames);
             }
         }
         
@@ -357,11 +390,14 @@ static NSString *addPhotoCellId = @"cellId";
 {
     NSMutableArray *array = [NSMutableArray array];
     [[HX_AssetManager sharedManager].selectedPhotos enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
-        
-        [array addObject:model.asset];
+        if (VERSION < 8.0f) {
+            [array addObject:model.asset];
+        }else {
+            [array addObject:model.PH_Asset];
+        }
     }];
     if (self.selectPhotos) {
-        self.selectPhotos(array.mutableCopy,[HX_AssetManager sharedManager].ifOriginal);
+        self.selectPhotos(array.mutableCopy,[HX_AssetManager sharedManager].videoFileNames,[HX_AssetManager sharedManager].ifOriginal);
     }
 }
 
@@ -482,28 +518,32 @@ static NSString *addPhotoCellId = @"cellId";
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    [picker dismissViewControllerAnimated:YES completion:^{}];
-    
     NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    HX_AssetManager *assetManager = [HX_AssetManager sharedManager];
+    HX_VideoManager *videoManager = [HX_VideoManager sharedManager];
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    
-    hud.labelText = @"正在保存";
+    CGFloat scale = [UIScreen mainScreen].scale;
     
     if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
+        
+        [picker dismissViewControllerAnimated:YES completion:nil];
+        
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+        hud.labelText = @"正在保存";
+    
         __weak typeof(self) weakSelf = self;
-        [[HX_AssetManager sharedManager] savePhotoWithImage:image completion:^{
-            [[HX_AssetManager sharedManager] getJustTakePhotosWithCompletion:^(NSArray *array) {
+        [assetManager savePhotoWithImage:image completion:^{
+            [assetManager getJustTakePhotosWithCompletion:^(NSArray *array) {
                 HX_PhotoModel *model = array.lastObject;
                 model.ifSelect = YES;
                 model.ifAdd = YES;
                 model.type = HX_Photo;
                 model.image = image;
-                [[HX_AssetManager sharedManager].selectedPhotos addObject:model];
+                [assetManager.selectedPhotos addObject:model];
                 
                 [weakSelf sureSelectPhotos:nil];
-                
+
                 UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
                 UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
                 hud.customView = imageView;
@@ -518,6 +558,12 @@ static NSString *addPhotoCellId = @"cellId";
         }];
         
     }else if ([mediaType isEqualToString:(NSString *)kUTTypeMovie] ) {
+        self.HUD = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+        [[UIApplication sharedApplication].keyWindow addSubview:self.HUD];
+
+        self.HUD.mode = MBProgressHUDModeIndeterminate;
+        self.HUD.labelText = @"正在保存";
+        [self.HUD show:YES];
         
         NSURL *url = info[UIImagePickerControllerMediaURL];
         __weak typeof(self) weakSelf = self;
@@ -529,56 +575,227 @@ static NSString *addPhotoCellId = @"cellId";
                     model.ifAdd = YES;
                     model.ifSelect = YES;
                     model.type = HX_Video;
-                    model.image = [UIImage imageWithCGImage:[model.asset aspectRatioThumbnail]];
-                    if (weakSelf.type == SelectPhotoAndVideo) {
-                        [[HX_AssetManager sharedManager].selectedPhotos addObject:model];
-                    }else if (weakSelf.type == SelectVideo) {
-                        [[HX_VideoManager sharedManager].selectedPhotos addObject:model];
-                    }
                     
-                    [weakSelf sureSelectPhotos:nil];
-                    UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
-                    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-                    hud.customView = imageView;
-                    hud.labelText = @"保存成功";
-                    hud.mode = MBProgressHUDModeCustomView;
-                    [hud hide:YES afterDelay:1.f];
+                    if (VERSION < 8.0f) {
+                        model.image = [UIImage imageWithCGImage:[model.asset aspectRatioThumbnail]];
+                        if (weakSelf.type == SelectPhotoAndVideo) {
+                            [assetManager.selectedPhotos addObject:model];
+                        }else if (weakSelf.type == SelectVideo) {
+                            [videoManager.selectedPhotos addObject:model];
+                        }
+                        
+                        UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
+                        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+                        weakSelf.HUD.customView = imageView;
+                        weakSelf.HUD.labelText = @"保存成功";
+                        weakSelf.HUD.mode = MBProgressHUDModeCustomView;
+                        
+                        [weakSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
+                            [weakSelf.HUD hide:YES];
+                            [weakSelf.HUD removeFromSuperview];
+                            [videoManager.videoFileNames addObject:fileName];
+                            [weakSelf sureSelectPhotos:nil];
+                            [picker dismissViewControllerAnimated:YES completion:nil];
+                        } failure:nil];
+                        
+                    }else {
+                        [assetManager accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(60 * scale, 60 * scale) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                            if (![[info objectForKey:PHImageResultIsDegradedKey] boolValue]) {
+                                model.image = image;
+                                if (weakSelf.type == SelectPhotoAndVideo) {
+                                    [assetManager.selectedPhotos addObject:model];
+                                }else if (weakSelf.type == SelectVideo) {
+                                    [videoManager.selectedPhotos addObject:model];
+                                }
+                                UIImage *image2 = [UIImage imageNamed:@"37x-Checkmark.png"];
+                                UIImageView *imageView = [[UIImageView alloc] initWithImage:image2];
+                                weakSelf.HUD.customView = imageView;
+                                weakSelf.HUD.labelText = @"保存成功";
+                                weakSelf.HUD.mode = MBProgressHUDModeCustomView;
+                                
+                                [[PHImageManager defaultManager] requestAVAssetForVideo:model.PH_Asset options:nil resultHandler:^(AVAsset * _Nullable asset1, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+                                    model.URLAsset = asset1;
+                                    weakSelf.URLAsset = asset1;
+                                    [weakSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
+                                        [weakSelf.HUD hide:YES];
+                                        [weakSelf.HUD removeFromSuperview];
+                                        [videoManager.videoFileNames addObject:fileName];
+                                        [weakSelf sureSelectPhotos:nil];
+                                        [picker dismissViewControllerAnimated:YES completion:nil];
+                                    } failure:nil];
+                                }];
+                            }
+                        }];
+
+                    }
                 }];
             } WithError:^{
-                hud.labelFont = [UIFont systemFontOfSize:15];
-                hud.labelText = @"保存失败";
-                [hud hide:YES afterDelay:3.f];
+                weakSelf.HUD.labelFont = [UIFont systemFontOfSize:15];
+                weakSelf.HUD.labelText = @"保存失败";
+                [weakSelf.HUD hide:YES afterDelay:3.f];
+                [weakSelf.HUD removeFromSuperview];
             }];
 
         }else {
-            [[HX_AssetManager sharedManager] savePhotoWithVideo:url completion:^{
-                [[HX_AssetManager sharedManager] getJustTakeVideoWithCompletion:^(NSArray *array) {
+            [assetManager savePhotoWithVideo:url completion:^{
+                [assetManager getJustTakeVideoWithCompletion:^(NSArray *array) {
                     HX_PhotoModel *model = array.lastObject;
                     model.ifAdd = YES;
                     model.ifSelect = YES;
                     model.type = HX_Video;
-                    model.image = [UIImage imageWithCGImage:[model.asset aspectRatioThumbnail]];
-                    if (weakSelf.type == SelectPhotoAndVideo) {
-                        [[HX_AssetManager sharedManager].selectedPhotos addObject:model];
-                    }else if (weakSelf.type == SelectVideo) {
-                        [[HX_VideoManager sharedManager].selectedPhotos addObject:model];
+                    if (VERSION < 8.0f) {
+                        model.image = [UIImage imageWithCGImage:[model.asset aspectRatioThumbnail]];
+                        if (weakSelf.type == SelectPhotoAndVideo) {
+                            [assetManager.selectedPhotos addObject:model];
+                        }else if (weakSelf.type == SelectVideo) {
+                            [videoManager.selectedPhotos addObject:model];
+                        }
+                        UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
+                        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+                        weakSelf.HUD.customView = imageView;
+                        weakSelf.HUD.labelText = @"保存成功";
+                        weakSelf.HUD.mode = MBProgressHUDModeCustomView;
+                        
+                        [weakSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
+                            [weakSelf.HUD hide:YES];
+                            [weakSelf.HUD removeFromSuperview];
+                            [assetManager.videoFileNames addObject:fileName];
+                            [weakSelf sureSelectPhotos:nil];
+                            [picker dismissViewControllerAnimated:YES completion:nil];
+                        } failure:nil];
+                    }else {
+                        [assetManager accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(60 * scale, 60 * scale) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                            
+                            if (![[info objectForKey:PHImageResultIsDegradedKey] boolValue]) {
+                                model.image = image;
+                                
+                                if (weakSelf.type == SelectPhotoAndVideo) {
+                                    [assetManager.selectedPhotos addObject:model];
+                                }else if (weakSelf.type == SelectVideo) {
+                                    [videoManager.selectedPhotos addObject:model];
+                                }
+                                UIImage *image2 = [UIImage imageNamed:@"37x-Checkmark.png"];
+                                UIImageView *imageView = [[UIImageView alloc] initWithImage:image2];
+                                weakSelf.HUD.customView = imageView;
+                                weakSelf.HUD.labelText = @"保存成功";
+                                weakSelf.HUD.mode = MBProgressHUDModeCustomView;
+                                
+                                [[PHImageManager defaultManager] requestAVAssetForVideo:model.PH_Asset options:nil resultHandler:^(AVAsset * _Nullable asset1, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+                                    model.URLAsset = asset1;
+                                    weakSelf.URLAsset = asset1;
+                                    
+                                    [weakSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
+                                        [weakSelf.HUD hide:YES];
+                                        [weakSelf.HUD removeFromSuperview];
+                                        [assetManager.videoFileNames addObject:fileName];
+                                        [weakSelf sureSelectPhotos:nil];
+                                        [picker dismissViewControllerAnimated:YES completion:nil];
+                                    } failure:nil];
+                                }];
+                            }
+                        }];
                     }
-                    
-                    [weakSelf sureSelectPhotos:nil];
-                    UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
-                    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-                    hud.customView = imageView;
-                    hud.labelText = @"保存成功";
-                    hud.mode = MBProgressHUDModeCustomView;
-                    [hud hide:YES afterDelay:1.f];
                 }];
             } WithError:^{
-                hud.labelFont = [UIFont systemFontOfSize:15];
-                hud.labelText = @"保存失败";
-                [hud hide:YES afterDelay:3.f];
+                weakSelf.HUD.labelFont = [UIFont systemFontOfSize:15];
+                weakSelf.HUD.labelText = @"保存失败";
+                [weakSelf.HUD hide:YES afterDelay:3.f];
+                [weakSelf.HUD removeFromSuperview];
             }];
 
         }
+    }
+}
+
+// 压缩视频并写入沙盒文件
+- (void)compressedVideoWithURL:(NSURL *)url success:(void(^)(NSString *fileName))success failure:(void(^)())failure
+{
+    AVURLAsset *avAsset;
+    if (VERSION < 8.0f) {
+        avAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+    }else {
+        avAsset = (AVURLAsset *)_URLAsset;
+    }
+    
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    
+    if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
+        
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:AVAssetExportPresetMediumQuality];
+        
+        NSString *fileName = @"";
+        
+        // ``````
+        NSDate *nowDate = [NSDate date];
+        NSString *dateStr = [NSString stringWithFormat:@"%ld", (long)[nowDate timeIntervalSince1970]];
+        
+        NSString *numStr = [NSString stringWithFormat:@"%d",arc4random()%10000];
+        fileName = [fileName stringByAppendingString:dateStr];
+        fileName = [fileName stringByAppendingString:numStr];
+        
+        // ````` 这里取的是时间加上一些随机数  保证每次写入文件的路径不一样
+        
+        fileName = [fileName stringByAppendingString:@".mp4"]; // 视频后缀
+        
+        NSString *fileName1 = [NSTemporaryDirectory() stringByAppendingString:fileName]; //文件名称
+        
+        exportSession.outputURL = [NSURL fileURLWithPath:fileName1];
+        
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        
+        exportSession.shouldOptimizeForNetworkUse = YES;
+        
+        self.HUD.mode = MBProgressHUDModeIndeterminate;
+        self.HUD.labelText = @"正在导出文件";
+        
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            
+            switch (exportSession.status) {
+                case AVAssetExportSessionStatusCancelled:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusCompleted:
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (success) {
+                            success(fileName1);
+                        }
+                    });
+                }
+                    break;
+                case AVAssetExportSessionStatusExporting:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusFailed:
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.HUD.labelText = @"导出失败";
+                        [self.HUD hide:YES afterDelay:2.0f];
+                        [self.HUD removeFromSuperview];
+                        if (failure) {
+                            failure();
+                        }
+                    });
+                }
+                    break;
+                case AVAssetExportSessionStatusUnknown:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusWaiting:
+                {
+                    
+                }
+                    break;
+                default:
+                    break;
+            }
+        }];
     }
 }
 
@@ -670,8 +887,11 @@ static NSString *addPhotoCellId = @"cellId";
     manager.ifOriginal = NO;
     [manager.allAlbumAy removeAllObjects];
     [manager.allGroup removeAllObjects];
+    [manager.videoFileNames removeAllObjects];
+    
     
     [HX_VideoManager sharedManager].ifRefresh = YES;
+    [[HX_VideoManager sharedManager].videoFileNames removeAllObjects];
     [[HX_VideoManager sharedManager].selectedPhotos removeAllObjects];
     [[HX_VideoManager sharedManager].allAlbumAy removeAllObjects];
     [[HX_VideoManager sharedManager].allGroup removeAllObjects];

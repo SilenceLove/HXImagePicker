@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
-
+#import <Photos/Photos.h>
 typedef enum{
     HX_Photo,
     HX_Video,
@@ -36,6 +36,10 @@ typedef enum{
 @property (strong, nonatomic) UIImage *image;
 
 @property (strong, nonatomic) ALAsset *asset;
+
+@property (strong, nonatomic) PHAsset *PH_Asset;
+
+@property (strong, nonatomic) AVAsset *URLAsset;
 ///**  图片的宽高  */
 @property (assign, nonatomic) CGSize imageSize;
 
@@ -45,6 +49,7 @@ typedef enum{
 /**  图片的名称  */
 @property (copy, nonatomic) NSString *fileName;
 /**  图片的小大  */
+//@property (assign, nonatomic) NSInteger length;
 //@property (assign, nonatomic) CGFloat size;
 /**  图片的原数据  */
 @property (strong, nonatomic) NSDictionary *imageDic;

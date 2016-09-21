@@ -16,7 +16,6 @@
 
 @interface HX_TableViewCell : UITableViewCell
 @property (assign, nonatomic) NSInteger count;
-@property (strong, nonatomic) UIImage *photoImg;
 @property (copy, nonatomic) NSString *photoName;
 @property (assign, nonatomic) NSInteger photoNum;
 @property (strong, nonatomic) HX_AlbumModel *model;

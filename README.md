@@ -4,8 +4,10 @@
 
 ##模仿QQ图片选择器,支持多选、选原图和视频的图片选择器，同时有预览功能,长按拖动改变顺序.通过相机拍照录制视频
 
-##【手动导入】：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
-##【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'
+<h1>当使用相机的时候会将拍下的照片和视频存放到自定义相册中</h1>
+
+【手动导入】：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"
+【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'
 
 ![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)
 
@@ -39,6 +41,10 @@ addPhotoView.lineSpacing = 5;
 // 录制视频时最大秒数   默认为60;
 addPhotoView.videoMaximumDuration = 60.f;
 
+// 自定义相册的名称 - 不设置默认为自定义相册
+addPhotoView.customName = @"";
+
+
 addPhotoView.delegate = self;
 addPhotoView.backgroundColor = [UIColor whiteColor];
 addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
@@ -51,20 +57,42 @@ addPhotoView.selectNum;
 ## /**  当选择类型为 SelectPhoto 或 SelectPhotoAndVideo 时 请用这个block  */
 
 ```objc
-[addPhotoView setSelectPhotos:^(NSArray *photos, BOOL iforiginal) {
+[addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
 
     iforiginal 是否原图
 
-    [photos enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+    // 选择视频的沙盒文件路径  -  已压缩
+    NSString *videoFileName = videoFileNames.firstObject;
 
-        // 缩略图
-        UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
+    [photos enumerateObjectsUsingBlock:^(id *asset, NSUInteger idx, BOOL * _Nonnull stop) {
 
-        // 原图
-        CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
+        // ios8.0 以下返回的是ALAsset对象 以上是PHAsset对象
+        if (VERSION < 8.0f) {
+            ALAsset *oneAsset = (ALAsset *)asset;
+            // 缩略图
+            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
 
-        // 图片url
-        NSURL *url = [[asset defaultRepresentation] url];
+            // 原图
+            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
+
+            // url
+            NSURL *url = [[asset defaultRepresentation] url];
+        }else {
+            PHAsset *twoAsset = (PHAsset *)asset;
+
+            CGFloat scale = [UIScreen mainScreen].scale;
+
+            // 根据输入的大小来控制返回的图片质量
+            CGSize size = CGSizeMake(300 * scale, 300 * scale);
+            [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:twoAsset size:size resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                // image为高清图时
+                if (![info objectForKey:PHImageResultIsDegradedKey]) {
+                    // 高清图
+                    image;
+                }
+            }];
+        }
+
 
     }];
 }];
@@ -72,11 +100,38 @@ addPhotoView.selectNum;
 ## /**  当选择类型为 SelectVideo 时 请用这个block  */
 
 ```objc
-[addVideoView setSelectVideo:^(NSArray *video) {
-    [video enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+[addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
 
-        // 视频url
-        NSURL *url = [[asset defaultRepresentation] url];
+    // 选择视频的沙盒文件路径  -  已压缩
+    NSString *videoFileName = videoFileNames.firstObject;
+    
+    [video enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+        // ios8.0 以下返回的是ALAsset对象
+        if (VERSION < 8.0f) {
+            ALAsset *oneAsset = (ALAsset *)asset;
+            // 缩略图
+            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
+
+            // 原图
+            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
+
+            // url
+            NSURL *url = [[asset defaultRepresentation] url];
+        }else {
+            PHAsset *twoAsset = (PHAsset *)asset;
+
+            CGFloat scale = [UIScreen mainScreen].scale;
+
+            // 根据输入的大小来控制返回的图片质量
+            CGSize size = CGSizeMake(300 * scale, 300 * scale);
+            [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:twoAsset size:size resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                // image为高清图时
+                if (![info objectForKey:PHImageResultIsDegradedKey]) {
+                    // 高清图
+                    image;
+                }
+            }];
+        }
     }];
 }];
 ```
@@ -96,4 +151,4 @@ addPhotoView.selectNum;
 发现的哪里有不好或不对的地方麻烦请联系我,大家一起讨论一起学习进步... 
 QQ : 294005139
 
-![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/one.png)
+![image](https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif)

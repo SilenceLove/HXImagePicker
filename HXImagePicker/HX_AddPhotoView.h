@@ -28,8 +28,9 @@ typedef enum{
 @property (assign, nonatomic) CGFloat margin_Left;
 @property (assign, nonatomic) CGFloat lineSpacing;
 @property (assign, nonatomic) CGFloat videoMaximumDuration;
-@property (copy, nonatomic) void(^selectPhotos)(NSArray *array,BOOL ifOriginal);
-@property (copy, nonatomic) void(^selectVideo)(NSArray *array);
+@property (copy, nonatomic) NSString *customName;
+@property (copy, nonatomic) void(^selectPhotos)(NSArray *array,NSArray *videoFileNames,BOOL ifOriginal);
+@property (copy, nonatomic) void(^selectVideo)(NSArray *array,NSArray *videoFileNames);
 @property (weak, nonatomic) id<HX_AddPhotoViewDelegate> delegate;
 
 /**

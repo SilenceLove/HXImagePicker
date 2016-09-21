@@ -11,11 +11,14 @@
 #import "HX_PhotoModel.h"
 #import "HX_AssetContainerViewCell.h"
 #import "HX_AssetManager.h"
+#import "HX_VideoManager.h"
 
 #import "MBProgressHUD.h"
 #define WIDTH  [UIScreen mainScreen].bounds.size.width
 #define HEIGHT  [UIScreen mainScreen].bounds.size.height
-@interface HX_AssetContainerVC ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
+
+@interface HX_AssetContainerVC ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,MBProgressHUDDelegate>
 @property (assign, nonatomic) BOOL ifDid;
 @property (weak, nonatomic) UILabel *titleLb;
 @property (weak, nonatomic) UIButton *rightBtn;
@@ -25,6 +28,8 @@
 @property (assign, nonatomic) CGPoint sBtnCenter;
 @property (weak, nonatomic) UILabel *topLb;
 @property (weak, nonatomic) UICollectionView *collectionView;
+@property (strong, nonatomic) MBProgressHUD *HUD;
+@property (strong, nonatomic) NSTimer *timer;
 @end
 
 
@@ -106,8 +111,6 @@ static NSString *containerCellId = @"cellId";
     [animationGroup setAnimations:[NSArray arrayWithObjects:scaleAnimation1,scaleAnimation2, scaleAnimation3,scaleAnimation4, nil]];
     
     [button.layer addAnimation:animationGroup forKey:nil];
-
-    model.collectionViewIndex = button.tag;
     
     if (button.selected) {
         model.ifAdd = YES;
@@ -165,7 +168,10 @@ static NSString *containerCellId = @"cellId";
         [_confirmBtn setTitle:[NSString stringWithFormat:@"确定(%ld)",count] forState:UIControlStateNormal];
         _originalBtn.selected = [HX_AssetManager sharedManager].ifOriginal;
         if ([HX_AssetManager sharedManager].ifOriginal) {
-            [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+            __weak typeof(self) weakSelf = self;
+            [[HX_AssetManager sharedManager] getPhotosBytes:^(NSString *bytes) {
+                [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+            }];
         }
     }else {
         [_confirmBtn setTitle:@"确定" forState:UIControlStateNormal];
@@ -292,7 +298,10 @@ static NSString *containerCellId = @"cellId";
             [_confirmBtn setTitle:[NSString stringWithFormat:@"确定(%ld)",count] forState:UIControlStateNormal];
             _originalBtn.selected = [HX_AssetManager sharedManager].ifOriginal;
             if ([HX_AssetManager sharedManager].ifOriginal) {
-                [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+                __weak typeof(self) weakSelf = self;
+                [[HX_AssetManager sharedManager] getPhotosBytes:^(NSString *bytes) {
+                    [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+                }];
             }
         }else {
             [_confirmBtn setTitle:@"确定" forState:UIControlStateNormal];
@@ -332,7 +341,10 @@ static NSString *containerCellId = @"cellId";
     
     [HX_AssetManager sharedManager].ifOriginal = button.selected;
     if (button.selected) {
-        [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
+        __weak typeof(self) weakSelf = self;
+        [[HX_AssetManager sharedManager] getPhotosBytes:^(NSString *bytes) {
+            [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+        }];
     }else {
         [_originalBtn setTitle:@"原图" forState:UIControlStateNormal];
     }
@@ -352,16 +364,166 @@ static NSString *containerCellId = @"cellId";
         model = self.photoAy.firstObject;
     }
     
+    HX_AssetManager *assetManager = [HX_AssetManager sharedManager];
+//    HX_VideoManager *videoManager = [HX_VideoManager sharedManager];
+    
     if (model.type == HX_Video) {
-        [[HX_AssetManager sharedManager].selectedPhotos addObject:model];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"HX_SureSelectPhotosNotice" object:nil];
-    
-    [self dismissViewControllerAnimated:YES completion:^{
+        [assetManager.selectedPhotos addObject:model];
+        __block int num = 0;
         
-    }];
+        __weak typeof(assetManager) weakManager = assetManager;
+//        __weak typeof(videoManager) weakVideoManager = videoManager;
+        __weak typeof(self) weakSelf = self;
+        [assetManager.selectedPhotos enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+            num++;
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
+//                if (!weakSelf.ifVideo) {
+                    [weakManager.videoFileNames addObject:fileName];
+//                }else {
+//                    [weakVideoManager.videoFileNames addObject:fileName];
+//                }
+                
+                if (num == assetManager.selectedPhotos.count) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"HX_SureSelectPhotosNotice" object:nil];
+                    
+                    [strongSelf dismissViewControllerAnimated:YES completion:nil];
+                }
+                
+            } failure:^{
+                MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:weakSelf.navigationController.view animated:YES];
+                
+                hud.mode = MBProgressHUDModeText;
+                hud.labelText = @"导出视频失败,请重试";
+                hud.margin = 10.f;
+                hud.removeFromSuperViewOnHide = YES;
+                
+                [hud hide:YES afterDelay:0.25];
+                button.enabled = YES;
+//                _progressBgView.hidden = YES;
+            }];
+        }];
+    }else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"HX_SureSelectPhotosNotice" object:nil];
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
+
+// 压缩视频并写入沙盒文件
+- (void)compressedVideoWithURL:(NSURL *)url success:(void(^)(NSString *fileName))success failure:(void(^)())failure
+{
+    AVURLAsset *avAsset;
+    if (VERSION < 8.0f) {
+        avAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+    }else {
+        HX_PhotoModel *model;
+        if (_currentIndex != 0) {
+            model = self.photoAy[_currentIndex - 1];
+        }else {
+            model = self.photoAy.firstObject;
+        }
+        avAsset = (AVURLAsset *)model.URLAsset;
+    }
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    
+    if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
+        
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:AVAssetExportPresetMediumQuality];
+        
+        NSString *fileName = @"";
+        
+        // ``````
+        NSDate *nowDate = [NSDate date];
+        NSString *dateStr = [NSString stringWithFormat:@"%ld", (long)[nowDate timeIntervalSince1970]];
+        
+        NSString *numStr = [NSString stringWithFormat:@"%d",arc4random()%10000];
+        fileName = [fileName stringByAppendingString:dateStr];
+        fileName = [fileName stringByAppendingString:numStr];
+        
+        // ````` 这里取的是时间加上一些随机数  保证每次写入文件的路径不一样
+        
+        fileName = [fileName stringByAppendingString:@".mp4"]; // 视频后缀
+        
+        NSString *fileName1 = [NSTemporaryDirectory() stringByAppendingString:fileName]; //文件名称
+        
+        exportSession.outputURL = [NSURL fileURLWithPath:fileName1];
+        
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        
+        exportSession.shouldOptimizeForNetworkUse = YES;
+        
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(lookVideoProgress:) userInfo:@{@"session" : exportSession} repeats:YES];
+        
+        self.HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+        [self.navigationController.view addSubview:self.HUD];
+        
+        self.HUD.mode = MBProgressHUDModeDeterminateHorizontalBar;
+        self.HUD.delegate = self;
+        self.HUD.labelText = @"正在导出文件,请稍等片刻";
+//        [self.HUD showWhileExecuting:@selector(lookVideoProgress) onTarget:self withObject:nil animated:YES];
+        [self.HUD show:YES];
+        
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            
+            switch (exportSession.status) {
+                case AVAssetExportSessionStatusCancelled:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusCompleted:
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (success) {
+                            success(fileName1);
+                        }
+                    });
+                }
+                    break;
+                case AVAssetExportSessionStatusExporting:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusFailed:
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.HUD.labelText = @"导出失败";
+                        [self.HUD hide:YES afterDelay:2.0f];
+                        if (failure) {
+                            failure();
+                        }
+                    });
+                }
+                    break;
+                case AVAssetExportSessionStatusUnknown:
+                {
+                    
+                }
+                    break;
+                case AVAssetExportSessionStatusWaiting:
+                {
+                    
+                }
+                    break;
+                default:
+                    break;
+            }
+        }];
+    }
+}
+
+- (void)lookVideoProgress:(NSTimer *)timer
+{
+    AVAssetExportSession *exportSession = timer.userInfo[@"session"];
+    self.HUD.progress = exportSession.progress;
+    if (exportSession.progress == 1.0) {
+        [timer invalidate];
+        [self.HUD hide:YES];
+    }
+}
+
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
@@ -429,9 +591,10 @@ static NSString *containerCellId = @"cellId";
             if (count > 0) {
                 [_confirmBtn setTitle:[NSString stringWithFormat:@"确定(%ld)",count] forState:UIControlStateNormal];
                 _originalBtn.selected = [HX_AssetManager sharedManager].ifOriginal;
-                if ([HX_AssetManager sharedManager].ifOriginal) {
-                    [_originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",[HX_AssetManager sharedManager].totalBytes] forState:UIControlStateNormal];
-                }
+                __weak typeof(self) weakSelf = self;
+                [[HX_AssetManager sharedManager] getPhotosBytes:^(NSString *bytes) {
+                    [weakSelf.originalBtn setTitle:[NSString stringWithFormat:@"原图（%@）",bytes] forState:UIControlStateNormal];
+                }];
             }else {
                 [_confirmBtn setTitle:@"确定" forState:UIControlStateNormal];
                 [_originalBtn setTitle:@"原图" forState:UIControlStateNormal];
@@ -449,6 +612,8 @@ static NSString *containerCellId = @"cellId";
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    
+    [self.timer invalidate];
     
     [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:18/255.0 green:183/255.0 blue:245/255.0 alpha:1]];
 }

@@ -7,6 +7,8 @@
 //
 
 #import "HX_AssetContainerViewCell.h"
+#import "HX_AssetManager.h"
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 
 @interface HX_AssetContainerViewCell ()<UIScrollViewDelegate>
 @property (weak, nonatomic) UIScrollView *scrollView;
@@ -155,11 +157,6 @@
 {
     _model = model;
     
-    CGFloat width = self.frame.size.width;
-    CGFloat height = self.frame.size.height;
-    CGFloat imgWidth = model.imageSize.width;
-    CGFloat imgHeight = model.imageSize.height;
-    
 //    [self.player stop];
 //    [self.player.view removeFromSuperview];
 //    _ifAddVideo = NO;
@@ -170,6 +167,10 @@
 //    }else {
 //        _playBtn.hidden = YES;
 //    }
+    CGFloat width = self.frame.size.width;
+    CGFloat height = self.frame.size.height;
+    CGFloat imgWidth = model.imageSize.width;
+    CGFloat imgHeight = model.imageSize.height;
     
     if (imgWidth < width) {
         _imageView.frame = CGRectMake(0, 0, imgWidth, imgHeight);
@@ -187,21 +188,29 @@
         _imageView.center = CGPointMake(width / 2, height / 2);
     }
     
+    CGFloat scale = [UIScreen mainScreen].scale;
     __weak typeof(self) weakSelf = self;
     if (model.type == HX_Video) {
         if (!model.screenImage) {
             _imageView.image = [UIImage imageNamed:@"shenmedoumeiyou"];
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                
-                CGImageRef fullScreen = [[model.asset defaultRepresentation] fullScreenImage];
-                
-                UIImage *image = [UIImage imageWithCGImage:fullScreen scale:2.0f orientation:UIImageOrientationUp];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
+            if (VERSION < 8.0f) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    
+                    CGImageRef fullScreen = [[model.asset defaultRepresentation] fullScreenImage];
+                    
+                    UIImage *image = [UIImage imageWithCGImage:fullScreen scale:scale orientation:UIImageOrientationUp];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        weakSelf.imageView.image = image;
+                        model.screenImage = image;
+                    });
+                });
+            }else {
+                [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(model.PH_Asset.pixelWidth * scale, model.PH_Asset.pixelHeight * scale) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                     weakSelf.imageView.image = image;
                     model.screenImage = image;
-                });
-            });
+                }];
+            }
         }else {
             _imageView.image = model.screenImage;
         }
@@ -209,34 +218,49 @@
         if (imgHeight > height * 1.5) {
             if (!model.resolutionImage) {
              _imageView.image = [UIImage imageNamed:@"shenmedoumeiyou"];
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    
-                    CGImageRef Resolution = [[model.asset defaultRepresentation] fullResolutionImage];
-                    
-                    UIImage *image = [UIImage imageWithCGImage:Resolution scale:2.0 orientation:UIImageOrientationUp];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if (VERSION < 8.0f) {
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        
+                        CGImageRef Resolution = [[model.asset defaultRepresentation] fullResolutionImage];
+                        
+                        UIImage *image = [UIImage imageWithCGImage:Resolution scale:scale orientation:UIImageOrientationUp];
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            weakSelf.imageView.image = image;
+                            model.resolutionImage = image;
+                        });
+                    });
+                }else {
+                    [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(model.PH_Asset.pixelWidth * scale, model.PH_Asset.pixelHeight * scale) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                         weakSelf.imageView.image = image;
                         model.resolutionImage = image;
-                    });
-                });
+                    }];
+                }
             }else {
                 _imageView.image = model.resolutionImage;
             }
         }else {
             if (!model.screenImage) {
                 _imageView.image = [UIImage imageNamed:@"shenmedoumeiyou"];
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    
-                    CGImageRef fullScreen = [[model.asset defaultRepresentation] fullScreenImage];
-                    
-                    UIImage *image = [UIImage imageWithCGImage:fullScreen scale:1.0f orientation:UIImageOrientationUp];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                if (VERSION < 8.0f) {
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        
+                        CGImageRef fullScreen = [[model.asset defaultRepresentation] fullScreenImage];
+                        
+                        UIImage *image = [UIImage imageWithCGImage:fullScreen scale:scale orientation:UIImageOrientationUp];
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            weakSelf.imageView.image = image;
+                            model.screenImage = image;
+                        });
+                    });
+                }else {
+                    [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:model.PH_Asset size:CGSizeMake(width * scale, height * scale) resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
                         weakSelf.imageView.image = image;
                         model.screenImage = image;
-                    });
-                });
+                    }];
+                }
             }else {
                 _imageView.image = model.screenImage;
             }

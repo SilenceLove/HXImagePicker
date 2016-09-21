@@ -37,8 +37,9 @@
     addPhotoView.frame = CGRectMake(5, 150, width - 10, 0);
     [self.view addSubview:addPhotoView];
     
-    [addPhotoView setSelectPhotos:^(NSArray *photos, BOOL iforiginal) {
+    [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
         NSLog(@"photo - %@",photos);
+        NSLog(@"videoFileNames - %@",videoFileNames);
         [photos enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
             
             // 缩略图
@@ -60,8 +61,9 @@
     addVideoView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:addVideoView];
     
-    [addVideoView setSelectVideo:^(NSArray *video) {
+    [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
         NSLog(@"video - %@",video);
+        NSLog(@"videoFileNames - %@",videoFileNames);
         [video enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
             
             // 缩略图

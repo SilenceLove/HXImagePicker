@@ -11,8 +11,10 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 #import "MBProgressHUD.h"
+#import <Photos/Photos.h>
+#import "HX_AssetManager.h"
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 @interface OneViewController ()<HX_AddPhotoViewDelegate>
-@property (strong, nonatomic) NSURL *videoUrl;
 @end
 
 @implementation OneViewController
@@ -45,6 +47,9 @@
     // 录制视频时最大多少秒   默认为60;
     addPhotoView.videoMaximumDuration = 60.f;
     
+    // 自定义相册的名称 - 不设置默认为自定义相册
+    addPhotoView.customName = @"郑莹";
+    
     addPhotoView.delegate = self;
     addPhotoView.backgroundColor = [UIColor whiteColor];
     addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
@@ -53,18 +58,41 @@
     /**  当前选择的个数  */
     addPhotoView.selectNum;
     
-    [addPhotoView setSelectPhotos:^(NSArray *photos, BOOL iforiginal) {
+    [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
         NSLog(@"photo - %@",photos);
-        [photos enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        // 选择视频的沙盒文件路径  -  已压缩
+        NSString *videoFileName = videoFileNames.firstObject;
+        NSLog(@"videoFileNames - %@",videoFileName);
+        
+        [photos enumerateObjectsUsingBlock:^(id asset, NSUInteger idx, BOOL * _Nonnull stop) {
             
-            // 缩略图
-            //            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
-            
-            // 原图
-            //            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
-            
-            // url
-            //            NSURL *url = [[asset defaultRepresentation] url];
+            // ios8.0 以下返回的是ALAsset对象 以上是PHAsset对象
+            if (VERSION < 8.0f) {
+                ALAsset *oneAsset = (ALAsset *)asset;
+                // 缩略图
+                //            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
+                
+                // 原图
+                //            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
+                
+                // url
+                //            NSURL *url = [[asset defaultRepresentation] url];
+            }else {
+                PHAsset *twoAsset = (PHAsset *)asset;
+                
+                CGFloat scale = [UIScreen mainScreen].scale;
+                
+                // 根据输入的大小来控制返回的图片质量
+                CGSize size = CGSizeMake(300 * scale, 300 * scale);
+                [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:twoAsset size:size resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                    // image为高清图时
+                    if (![info objectForKey:PHImageResultIsDegradedKey]) {
+                        // 高清图
+                        image;
+                    }
+                }];
+            }
             
         }];
     }];
@@ -77,149 +105,44 @@
     addVideoView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:addVideoView];
     __weak typeof(self) weakSelf = self;
-    [addVideoView setSelectVideo:^(NSArray *video) {
+    [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
         NSLog(@"video - %@",video);
-        [video enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        // 选择视频的沙盒文件路径  -  已压缩
+        NSString *videoFileName = videoFileNames.firstObject;
+        NSLog(@"videoFileNames - %@",videoFileName);
+        
+        [video enumerateObjectsUsingBlock:^(id asset, NSUInteger idx, BOOL * _Nonnull stop) {
             
-            // 缩略图
-            //            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
-            
-            // 原图
-            //            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
-            
-            // url
-            NSURL *url = [[asset defaultRepresentation] url];
-            weakSelf.videoUrl = url;
-        }];
-    }];
-    
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"写入" style:UIBarButtonItemStylePlain target:self action:@selector(writeVideo)];
-}
-
-// 开始写入
-- (void)writeVideo
-{
-    if (!self.videoUrl) {
-        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-        UIView *view = [[UIView alloc] init];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_ar_failed@2x.png"]];
-        [view addSubview:imageView];
-        
-        view.frame = CGRectMake(0, 0, imageView.image.size.width, imageView.image.size.height + 10);
-        
-        hud.customView = view;
-        hud.mode = MBProgressHUDModeCustomView;
-        hud.labelText = @"视频url不能为空!";
-        hud.margin = 10.f;
-        hud.removeFromSuperViewOnHide = YES;
-        
-        [hud hide:YES afterDelay:1.5f];
-        return;
-    }
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    
-    hud.labelText = @"正在写入";
-    
-    [self CompressedVideoWithURL:self.videoUrl success:^(NSString *fileName) {
-        
-        NSLog(@"%@",fileName); // 沙盒路径
-        
-        UIImage *image = [UIImage imageNamed:@"37x-Checkmark.png"];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        hud.customView = imageView;
-        hud.labelText = @"写入成功";
-        hud.mode = MBProgressHUDModeCustomView;
-        [hud hide:YES afterDelay:1.f];
-        self.videoUrl = nil;
-    } failure:^{
-        hud.labelText = @"写入失败";
-        [hud hide:YES afterDelay:3.f];
-    }];
-}
-
-// 压缩视频并写入沙盒文件
-- (void)CompressedVideoWithURL:(NSURL *)url success:(void(^)(NSString *fileName))success failure:(void(^)())failure
-{
-    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:url options:nil];
-    
-    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
-    
-    if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
-        
-        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:AVAssetExportPresetMediumQuality];
-        
-        NSString *fileName = @"";
-        
-        // ``````
-        NSDate *nowDate = [NSDate date];
-        NSString *dateStr = [NSString stringWithFormat:@"%ld", (long)[nowDate timeIntervalSince1970]];
-        
-        NSString *numStr = [NSString stringWithFormat:@"%d",arc4random()%10000];
-        fileName = [fileName stringByAppendingString:dateStr];
-        fileName = [fileName stringByAppendingString:numStr];
-        
-        // ````` 这里取的是时间加上一些随机数  保证每次写入文件的路径不一样
-        
-        fileName = [fileName stringByAppendingString:@".mp4"]; // 视频后缀
-        
-        NSString *fileName1 = [NSTemporaryDirectory() stringByAppendingString:fileName]; //文件名称
-        
-        exportSession.outputURL = [NSURL fileURLWithPath:fileName1];
-        
-        exportSession.outputFileType = AVFileTypeMPEG4;
-        
-        exportSession.shouldOptimizeForNetworkUse = YES;
-        
-        
-        [exportSession exportAsynchronouslyWithCompletionHandler:^{
-            
-            switch (exportSession.status) {
-                case AVAssetExportSessionStatusCancelled:
-                {
-                    
-                }
-                    break;
-                case AVAssetExportSessionStatusCompleted:
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (success) {
-                            success(fileName1);
-                        }
-                    });
-                }
-                    break;
-                case AVAssetExportSessionStatusExporting:
-                {
-                    
-                }
-                    break;
-                case AVAssetExportSessionStatusFailed:
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (failure) {
-                            failure();
-                        }
-                    });
-                }
-                    break;
-                case AVAssetExportSessionStatusUnknown:
-                {
-                    
-                }
-                    break;
-                case AVAssetExportSessionStatusWaiting:
-                {
-                    
-                }
-                    break;
-                default:
-                    break;
+            // ios8.0 以下返回的是ALAsset对象
+            if (VERSION < 8.0f) {
+                ALAsset *oneAsset = (ALAsset *)asset;
+                // 缩略图
+                //            UIImage *image = [UIImage imageWithCGImage:[asset aspectRatioThumbnail]];
+                
+                // 原图
+                //            CGImageRef fullImage = [[asset defaultRepresentation] fullResolutionImage];
+                
+                // url
+                //            NSURL *url = [[asset defaultRepresentation] url];
+            }else {
+                PHAsset *twoAsset = (PHAsset *)asset;
+                
+                CGFloat scale = [UIScreen mainScreen].scale;
+                
+                // 根据输入的大小来控制返回的图片质量
+                CGSize size = CGSizeMake(300 * scale, 300 * scale);
+                [[HX_AssetManager sharedManager] accessToImageAccordingToTheAsset:twoAsset size:size resizeMode:PHImageRequestOptionsResizeModeFast completion:^(UIImage *image, NSDictionary *info) {
+                    // image为高清图时
+                    if (![info objectForKey:PHImageResultIsDegradedKey]) {
+                        // 高清图
+                        image;
+                    }
+                }];
             }
         }];
-    }
+    }];
+    
 }
 
 - (void)updateViewFrame:(CGRect)frame WithView:(UIView *)view

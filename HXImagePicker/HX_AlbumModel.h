@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
+#import <Photos/Photos.h>
 @interface HX_AlbumModel : NSObject
 /**  封面图  */
 @property (strong, nonatomic) UIImage *coverImage;
@@ -22,4 +23,7 @@
 @property (assign, nonatomic) NSUInteger photosNum;
 
 @property (strong, nonatomic) ALAssetsGroup *group;
+
+@property (strong, nonatomic) PHAsset *PH_Asset;
+@property (strong, nonatomic) PHAssetCollection *PH_AssetCollection;
 @end

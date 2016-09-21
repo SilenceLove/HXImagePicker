@@ -265,6 +265,7 @@
 				TargetAttributes = {
 					7BD7B7631D82A9F600D540AA = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = L5FBU97WQN;
 					};
 				};
 			};
@@ -442,10 +443,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HXImagePickerDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = Foreverlove.HXImagePickerDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = Foreverlove.hx;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -454,10 +456,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HXImagePickerDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = Foreverlove.HXImagePickerDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = Foreverlove.hx;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

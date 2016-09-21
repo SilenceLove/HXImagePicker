@@ -7,7 +7,8 @@
 //
 
 #import "HX_PhotoModel.h"
-
+#import "HX_AssetManager.h"
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 @implementation HX_PhotoModel
 
 - (BOOL)ifSelect
@@ -23,7 +24,11 @@
 - (CGSize)imageSize
 {
     if (_imageSize.width == 0 || _imageSize.height == 0) {
-        _imageSize = [[_asset defaultRepresentation] dimensions];
+        if (VERSION < 8.0f) {
+            _imageSize = [[_asset defaultRepresentation] dimensions];
+        }else {
+            _imageSize = CGSizeMake(_PH_Asset.pixelWidth, _PH_Asset.pixelHeight);
+        }
     }
     return _imageSize;
 }
@@ -55,7 +60,9 @@
 - (NSURL *)url
 {
     if (!_url) {
-        _url = [[_asset defaultRepresentation] url];
+        if (VERSION < 8.0f) {
+            _url = [[_asset defaultRepresentation] url];
+        }
     }
     return _url;
 }

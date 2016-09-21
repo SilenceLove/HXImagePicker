@@ -16,11 +16,15 @@
 
 /**  已经添加的图片数组  */
 @property (strong, nonatomic) NSMutableArray *selectedPhotos;
+/**  存放视频压缩后的地址  */
+@property (strong, nonatomic) NSMutableArray *videoFileNames;
+
+/**  自定义相册的名称  */
+@property (copy, nonatomic) NSString *customName;
 
 @property (copy, nonatomic) NSString *totalBytes;
 
 + (instancetype)sharedManager;
-+ (void)destruction;
 
 /**  获取所有相册信息  */
 - (void)getAllAlbumWithStart:(void(^)())start WithEnd:(void(^)(NSArray *allAlbum,NSArray *photosAy))album WithFailure:(void(^)(NSError *error))failure;
