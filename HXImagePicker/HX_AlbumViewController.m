@@ -60,6 +60,9 @@ static NSString *albumCellId = @"cellId";
     [self.tableView reloadData];
 }
 
+/**
+ *  获取图片
+ */
 - (void)loadPhotos
 {
     HX_AssetManager *assetManager = [HX_AssetManager sharedManager];
@@ -260,12 +263,9 @@ static NSString *albumCellId = @"cellId";
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
-}
-
+/**
+ *  设置
+ */
 - (void)setup
 {
     self.title = @"相册";
@@ -332,6 +332,12 @@ static NSString *albumCellId = @"cellId";
     vc.ifVideo = self.ifVideo;
     [self.navigationController pushViewController:vc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 
 @end

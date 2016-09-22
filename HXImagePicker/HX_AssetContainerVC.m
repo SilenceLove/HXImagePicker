@@ -609,6 +609,18 @@ static NSString *containerCellId = @"cellId";
     }
 }
 
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[HX_AssetContainerViewCell class]]) {
+        [(HX_AssetContainerViewCell *)cell updateImageSize];
+    }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[HX_AssetContainerViewCell class]]) {
+        [(HX_AssetContainerViewCell *)cell updateImageSize];
+    }
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];

@@ -93,6 +93,7 @@ static BOOL ifOne = YES;
     return _ifOriginal;
 }
 
+#pragma mark - < 自定义相册的名称 >
 - (void)setCustomName:(NSString *)customName
 {
     _customName = customName;
@@ -583,9 +584,7 @@ static BOOL ifOne = YES;
 }
 
 #pragma mark - 保存图片到自定义相册
-/**
- * 获得自定义的相册对象
- */
+#pragma mark - 获取自定义相册
 - (PHAssetCollection *)collection
 {
     // 先从已存在相册中找到自定义相册对象

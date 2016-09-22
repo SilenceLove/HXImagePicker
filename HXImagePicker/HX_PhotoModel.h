@@ -48,15 +48,13 @@ typedef enum{
 
 /**  图片的名称  */
 @property (copy, nonatomic) NSString *fileName;
-/**  图片的小大  */
-//@property (assign, nonatomic) NSInteger length;
-//@property (assign, nonatomic) CGFloat size;
+
 /**  图片的原数据  */
 @property (strong, nonatomic) NSDictionary *imageDic;
-/**  图片的旋转方向  */
-//@property (assign, nonatomic) ALAssetOrientation <#名字#>;
+
 /**  图片的URL  */
 @property (strong, nonatomic) NSURL *url;
+
 /**  图片的唯一标示符  */
 @property (copy, nonatomic) NSString *uti;
 

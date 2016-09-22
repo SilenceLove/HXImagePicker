@@ -77,6 +77,7 @@ static BOOL ifVideoOne = YES;
     ifVideoOne = ifRefresh;
 }
 
+#pragma mark - < 自定义相册的名称 >
 - (void)setCustomName:(NSString *)customName
 {
     _customName = customName;
@@ -85,7 +86,7 @@ static BOOL ifVideoOne = YES;
     }
 }
 
-/**  获取所有相册信息  */
+#pragma mark - < 获取所有相册信息 >
 - (void)getAllAlbumWithStart:(void (^)())start WithEnd:(void (^)(NSArray *, NSArray *))album WithFailure:(void (^)(NSError *))failure
 {
     if (start) {
