@@ -471,32 +471,6 @@ static NSString *addPhotoCellId = @"cellId";
             }
         }
     }else if (buttonIndex == 1) {
-        NSString *tipTextWhenNoPhotosAuthorization; // 提示语
-        // 获取当前应用对照片的访问授权状态
-        ALAuthorizationStatus authorizationStatus = [ALAssetsLibrary authorizationStatus];
-        // 如果没有获取访问授权，或者访问授权状态已经被明确禁止，则显示提示语，引导用户开启授权
-        if (authorizationStatus == ALAuthorizationStatusRestricted || authorizationStatus == ALAuthorizationStatusDenied) {
-
-            tipTextWhenNoPhotosAuthorization = @"请在设备的\"设置-隐私-照片\"选项中，允许访问你的手机相册";
-            // 展示提示语
-
-            MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-            UIView *view = [[UIView alloc] init];
-
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_ar_failed@2x.png"]];
-            [view addSubview:imageView];
-
-            view.frame = CGRectMake(0, 0, imageView.image.size.width, imageView.image.size.height + 10);
-
-            hud.customView = view;
-            hud.mode = MBProgressHUDModeCustomView;
-            hud.labelText = tipTextWhenNoPhotosAuthorization;
-            hud.labelFont = [UIFont systemFontOfSize:12];
-            hud.margin = 10.f;
-
-            [hud hide:YES afterDelay:3.0f];
-        }
-        //    NSLog(@"%f",VERSION);
 
         HX_AlbumViewController *photo = [[HX_AlbumViewController alloc] init];
         photo.maxNum = self.maxNum;

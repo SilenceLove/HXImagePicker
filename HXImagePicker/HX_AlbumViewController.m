@@ -20,6 +20,7 @@
 @property (weak, nonatomic) UITableView *tableView;
 @property (strong, nonatomic) NSMutableArray *allAlbumArray;
 @property (strong, nonatomic) NSMutableArray *allImagesAy;
+@property (strong, nonatomic) NSTimer *timer;
 @end
 
 static NSString *albumCellId = @"cellId";
@@ -39,8 +40,41 @@ static NSString *albumCellId = @"cellId";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeSelectPhotoAy:) name:@"HX_SelectPhotosNotica" object:nil];
     
     [self setup];
-
     [self loadPhotos];
+    // 获取当前应用对照片的访问授权状态
+    if (VERSION > 8.0f) {
+        if ([PHPhotoLibrary authorizationStatus] != PHAuthorizationStatusAuthorized) {
+            [HX_AssetManager sharedManager].ifRefresh = YES;
+            [HX_VideoManager sharedManager].ifRefresh = YES;
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange:) userInfo:nil repeats:YES];
+        }
+    }else {
+        // 如果没有获取访问授权，或者访问授权状态已经被明确禁止，则显示提示语，引导用户开启授权
+        if ([ALAssetsLibrary authorizationStatus] != ALAuthorizationStatusAuthorized) {
+            [HX_AssetManager sharedManager].ifRefresh = YES;
+            [HX_VideoManager sharedManager].ifRefresh = YES;
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange:) userInfo:nil repeats:YES];
+        }
+    }
+}
+
+- (void)observeAuthrizationStatusChange:(NSTimer *)timer
+{
+    if (VERSION > 8.0f) {
+        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
+            [timer invalidate];
+            self.timer = nil;
+            [self loadPhotos];
+        }
+        
+    }else {
+        // 如果没有获取访问授权，或者访问授权状态已经被明确禁止，则显示提示语，引导用户开启授权
+        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
+            [timer invalidate];
+            self.timer = nil;
+            [self loadPhotos];
+        }
+    }
 }
 
 - (void)changeSelectPhotoAy:(NSNotification *)info
@@ -231,6 +265,13 @@ static NSString *albumCellId = @"cellId";
     [super viewWillAppear:animated];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.timer invalidate];
+    self.timer = nil;
 }
 
 #pragma mark - < 关闭按钮 清空选中数组中的内容 >
