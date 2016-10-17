@@ -22,6 +22,12 @@
 /**  相册内容数量  */
 @property (assign, nonatomic) NSUInteger photosNum;
 
+/**  图片数量  */
+@property (assign, nonatomic) NSInteger imageNum;
+
+/**  视频数量  */
+@property (assign, nonatomic) NSInteger videoNum;
+
 @property (strong, nonatomic) ALAssetsGroup *group;
 
 @property (strong, nonatomic) PHAsset *PH_Asset;

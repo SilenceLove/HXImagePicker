@@ -61,12 +61,12 @@ typedef enum{
 @property (copy, nonatomic) NSString *customName;
 
 /**
- *  类型为 SelectPhotoAndVideo / SelectPhoto 时选择、删除、拖动图片之后调用
+ *  类型为 SelectPhotoAndVideo / SelectPhoto 时选择、删除、拖动图片之后调用 -- 注意用weak修饰,不然会循环引用
  */
 @property (copy, nonatomic) void(^selectPhotos)(NSArray *array,NSArray *videoFileNames,BOOL ifOriginal);
 
 /**
- *  类型为 SelectVideo 时选择、删除、拖动图片之后调用
+ *  类型为 SelectVideo 时选择、删除、拖动图片之后调用 -- 注意用weak修饰,不然会循环引用
  */
 @property (copy, nonatomic) void(^selectVideo)(NSArray *array,NSArray *videoFileNames);
 

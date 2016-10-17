@@ -61,7 +61,7 @@ addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
 addPhotoView.selectNum;
 ```
 
-- 当选择类型为 SelectPhoto 或 SelectPhotoAndVideo 时 请用这个block 
+- 当选择类型为 SelectPhoto 或 SelectPhotoAndVideo 时 请用这个block  <注意：要用weak修饰，不然会循环引用控制器得不到释放>
 
 ```objc
 [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
@@ -102,7 +102,7 @@ addPhotoView.selectNum;
     }];
 }];
 ```
-- 当选择类型为 SelectVideo 时 请用这个block
+- 当选择类型为 SelectVideo 时 请用这个block  <注意：要用weak修饰，不然会循环引用控制器得不到释放>
 
 ```objc
 [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {

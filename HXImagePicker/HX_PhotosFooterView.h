@@ -10,4 +10,6 @@
 
 @interface HX_PhotosFooterView : UICollectionReusableView
 @property (assign, nonatomic) NSInteger total;
+@property (assign, nonatomic) NSInteger photosNum;
+@property (assign, nonatomic) NSInteger videosNum;
 @end

@@ -8,6 +8,9 @@
 
 #import "HX_PhotosFooterView.h"
 #import "HX_AssetManager.h"
+
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
+
 @interface HX_PhotosFooterView ()
 @property (weak, nonatomic) UILabel *label;
 @end
@@ -46,7 +49,17 @@
     }else if ([HX_AssetManager sharedManager].type == HX_SelectVideo) {
         str = [NSString stringWithFormat:@"共%ld个视频",total];
     }else if ([HX_AssetManager sharedManager].type == HX_SelectPhotoAndVieo) {
-        str = [NSString stringWithFormat:@"共%ld张图片、视频",total];
+        if (VERSION > 8.0f) {
+            if (self.videosNum == 0) {
+                str = [NSString stringWithFormat:@"共%ld张图片",self.photosNum];
+            }else if (self.photosNum == 0) {
+                str = [NSString stringWithFormat:@"共%ld个视频",self.videosNum];
+            }else {
+                str = [NSString stringWithFormat:@"共%ld张图片、%ld个视频",self.photosNum,self.videosNum];
+            }
+        }else {
+            str = [NSString stringWithFormat:@"共%ld张图片、视频",total];
+        }
     }
     _label.text = str;
 }

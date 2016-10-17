@@ -236,7 +236,6 @@ static NSString *cellFooterId = @"photoCellFooterId";
         // 如果有内容就需要给底部的按钮重新赋值
         [_confirmBtn setTitle:[NSString stringWithFormat:@"确定(%ld)",count] forState:UIControlStateNormal];
         
-        
         _originalBtn.selected = manager.ifOriginal;
         
         // 判断是否点击了原图按钮
@@ -378,6 +377,8 @@ static NSString *cellFooterId = @"photoCellFooterId";
 {
     if ([kind isEqualToString:UICollectionElementKindSectionFooter]) {
         HX_PhotosFooterView *footerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:cellFooterId forIndexPath:indexPath];
+        footerView.photosNum = self.photosNum;
+        footerView.videosNum = self.videosNum;
         footerView.total = self.allPhotosArray.count;
         return footerView;
     }

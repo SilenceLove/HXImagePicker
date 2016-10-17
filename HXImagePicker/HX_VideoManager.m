@@ -123,8 +123,10 @@ static BOOL ifVideoOne = YES;
                                 
                                 if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypePhoto]) {
                                     model.type = HX_Photo;
+                                    album.imageNum++;
                                 }else if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
                                     model.type = HX_Video;
+                                    album.videoNum++;
                                     NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
                                     NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
                                     model.videoTime = [self getNewTimeFromDurationSecond:timeLength.integerValue];

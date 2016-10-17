@@ -157,7 +157,9 @@ static BOOL ifOne = YES;
                                 // 判断图片的类型
                                 if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypePhoto]) { // 照片
                                     model.type = HX_Photo;
+                                    album.imageNum++;
                                 }else if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) { // 视频
+                                    album.videoNum++;
                                     model.type = HX_Video;
                                     NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
                                     NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
@@ -222,9 +224,13 @@ static BOOL ifOne = YES;
                 PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 
                 NSArray *assets;
+                __block NSInteger photosNum = 0, videosNum = 0;
                 if (result.count > 0) {
                     // 某个相册里面的所有PHAsset对象
-                    assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index];
+                    assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index num:^(NSInteger photoNum, NSInteger videoNum) {
+                        photosNum = photoNum;
+                        videosNum = videoNum;
+                    }];
                     ++index;
                 }
                 
@@ -232,6 +238,10 @@ static BOOL ifOne = YES;
                 if (assets.count > 0) {
                     // 相册封面信息
                     HX_AlbumModel *model = [[HX_AlbumModel alloc] init];
+                    
+                    model.imageNum = photosNum;
+                    model.videoNum = videosNum;
+                    
                     // 相册名称
                     model.albumName = [weakSelf transFormPhotoTitle:collection.localizedTitle];
                     // 照片数量
@@ -269,9 +279,13 @@ static BOOL ifOne = YES;
                 PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 
                 NSArray *assets;
+                __block NSInteger photosNum = 0, videosNum = 0;
                 if (result.count > 0) {
                     // 某个相册里面的所有PHAsset对象
-                    assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index];
+                    assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index num:^(NSInteger photoNum, NSInteger videoNum) {
+                        photosNum = photoNum;
+                        videosNum = videoNum;
+                    }];
                     ++index;
                 }
                 
@@ -279,6 +293,10 @@ static BOOL ifOne = YES;
                 if (assets.count > 0) {
                     // 相册封面信息
                     HX_AlbumModel *model = [[HX_AlbumModel alloc] init];
+                    
+                    model.imageNum = photosNum;
+                    model.videoNum = videosNum;
+                    
                     // 相册名称
                     model.albumName = [weakSelf transFormPhotoTitle:collection.localizedTitle];
                     // 照片数量
@@ -319,7 +337,7 @@ static BOOL ifOne = YES;
 }
 
 #pragma mark - <  获取相册里的所有图片的PHAsset对象  >
-- (NSArray *)getAllPhotosAssetInAblumCollection:(PHAssetCollection *)assetCollection ascending:(BOOL)ascending index:(NSInteger)index
+- (NSArray *)getAllPhotosAssetInAblumCollection:(PHAssetCollection *)assetCollection ascending:(BOOL)ascending index:(NSInteger)index num:(void(^)(NSInteger photoNum,NSInteger videoNum))num
 {
     // 存放所有图片对象
     NSMutableArray *assets = [NSMutableArray array];
@@ -337,6 +355,7 @@ static BOOL ifOne = YES;
     // 获取所有图片对象
     PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:assetCollection options:option];
     
+    __block NSInteger photosNum = 0, videosNum = 0;
     // 遍历
     [result enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
         
@@ -355,8 +374,10 @@ static BOOL ifOne = YES;
         
         if (asset.mediaType == PHAssetMediaTypeImage) {
             model.type = HX_Photo;
+            photosNum++;
         }else if (asset.mediaType == PHAssetMediaTypeVideo) {
             model.type = HX_Video;
+            videosNum++;
             NSString *timeLength = [NSString stringWithFormat:@"%0.0f",asset.duration];
             model.videoTime = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:nil resultHandler:^(AVAsset * _Nullable asset1, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
@@ -369,7 +390,9 @@ static BOOL ifOne = YES;
         // 将图片对象存放到数组中
         [assets addObject:model];
     }];
-    
+    if (num) {
+        num(photosNum,videosNum);
+    }
     return assets;
 }
 
@@ -787,9 +810,13 @@ static BOOL ifOne = YES;
             PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             
             NSArray *assets;
+            __block NSInteger photosNum = 0, videosNum = 0;
             if (result.count > 0 && [collection.localizedTitle isEqualToString:self.customName]) {
                 // 某个相册里面的所有PHAsset对象
-                assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index];
+                assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index num:^(NSInteger photoNum, NSInteger videoNum) {
+                    photosNum = photoNum;
+                    videosNum = videoNum;
+                }];
                 photos = assets.copy;
                 HX_PhotoModel *TPModel = assets.lastObject;
                 weakSelf.TPTableIndex = TPModel.tableViewIndex;
@@ -800,6 +827,10 @@ static BOOL ifOne = YES;
                     if (!ifCustom) {
                         // 相册封面信息
                         HX_AlbumModel *model = [[HX_AlbumModel alloc] init];
+                        
+                        model.imageNum = photosNum;
+                        model.videoNum = videosNum;
+                        
                         // 相册名称
                         model.albumName = [weakSelf transFormPhotoTitle:collection.localizedTitle];
                         // 照片数量
@@ -1025,9 +1056,13 @@ static BOOL ifOne = YES;
             PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             
             NSArray *assets;
+            __block NSInteger photosNum = 0, videosNum = 0;
             if (result.count > 0 && [collection.localizedTitle isEqualToString:self.customName]) {
                 // 某个相册里面的所有PHAsset对象
-                assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index];
+                assets = [strongSelf getAllPhotosAssetInAblumCollection:collection ascending:YES index:index num:^(NSInteger photoNum, NSInteger videoNum) {
+                    photosNum = photoNum;
+                    videosNum = videoNum;
+                }];
                 photos = assets.copy;
                 HX_PhotoModel *TPModel = assets.lastObject;
                 weakSelf.TPTableIndex = TPModel.tableViewIndex;
@@ -1038,6 +1073,10 @@ static BOOL ifOne = YES;
                     if (!ifCustom) {
                         // 相册封面信息
                         HX_AlbumModel *model = [[HX_AlbumModel alloc] init];
+                        
+                        model.imageNum = photosNum;
+                        model.videoNum = videosNum;
+                        
                         // 相册名称
                         model.albumName = [weakSelf transFormPhotoTitle:collection.localizedTitle];
                         // 照片数量

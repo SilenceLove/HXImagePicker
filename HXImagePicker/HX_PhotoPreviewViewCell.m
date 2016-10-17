@@ -230,8 +230,6 @@
         }
     }
     
-    
-    // 因为有个未知bug  所有这里做了这个判断
     if ([HX_AssetManager sharedManager].selectedPhotos.count == 0) {
         model.ifSelect = NO;
     }

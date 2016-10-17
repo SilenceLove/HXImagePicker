@@ -12,4 +12,6 @@
 @property (strong, nonatomic) NSMutableArray *allPhotosArray;
 @property (assign, nonatomic) NSInteger cellIndex;
 @property (assign, nonatomic) NSInteger maxNum;
+@property (assign, nonatomic) NSInteger photosNum;
+@property (assign, nonatomic) NSInteger videosNum;
 @end
