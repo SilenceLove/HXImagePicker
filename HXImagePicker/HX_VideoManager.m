@@ -330,7 +330,9 @@ static BOOL ifVideoOne = YES;
     }
     
     PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
-    
+    option.networkAccessAllowed = YES;
+    option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+    option.synchronous = NO;
     option.resizeMode = resizeMode;
     
     requestID = [[PHCachingImageManager defaultManager] requestImageForAsset:asset targetSize:size contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {

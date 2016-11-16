@@ -53,6 +53,25 @@ static NSString *containerCellId = @"cellId";
 - (void)didRightBtnClick:(UIButton *)button
 {
     HX_AssetManager *manager = [HX_AssetManager sharedManager];
+    HX_PhotoModel *model = self.photoAy[button.tag];
+    if (model.isiCloud) {
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+        UIView *view = [[UIView alloc] init];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_ar_failed@2x.png"]];
+        [view addSubview:imageView];
+        
+        view.frame = CGRectMake(0, 0, imageView.image.size.width, imageView.image.size.height + 10);
+        
+        hud.customView = view;
+        hud.mode = MBProgressHUDModeCustomView;
+        hud.labelText = @"该图片尚未从iCloud下载，请在系统相册中下载到本地后重新尝试";
+        hud.margin = 10.f;
+        hud.removeFromSuperViewOnHide = YES;
+        
+        [hud hide:YES afterDelay:1.5f];
+        return;
+    }
     
     if (!button.selected) {
         if (manager.selectedPhotos.count >= _maxNum) {
@@ -76,7 +95,7 @@ static NSString *containerCellId = @"cellId";
     }
     
     button.selected = !button.selected;
-    HX_PhotoModel *model = self.photoAy[button.tag];
+    
     model.ifSelect = button.selected;
     
     // 果冻弹簧效果动画

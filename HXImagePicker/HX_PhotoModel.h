@@ -62,4 +62,7 @@ typedef enum{
 
 @property (assign, nonatomic) NSInteger newIndex;
 
+/**  是否iCloud上的照片  */
+@property (assign, nonatomic) BOOL isiCloud;
+
 @end

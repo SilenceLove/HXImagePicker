@@ -9,6 +9,9 @@
 【手动导入】：将项目中的HX_ImagerPicker此文件夹拽入项目中，导入头文件：#import "HX_AddPhotoView.h"</br>
 【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'----暂时不要用CocoaPods
 
+###新修改了 如果是iCloud上的照片会提醒
+<img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/iCloud.jpg" width = "240" height = "425">
+
 <table border = "1">
 <tr>
     <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif" width = "240" height = "425"></td>
