@@ -147,6 +147,11 @@
 
 - (void)updateViewFrame:(CGRect)frame WithView:(UIView *)view
 {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    CGFloat buttonY = CGRectGetMaxY(frame);
+    
+    button.frame = CGRectMake(0, buttonY, 100, 100);
     [self.view layoutSubviews];
 }
 @end

@@ -15,6 +15,7 @@
 #import "HX_VideoContainerVC.h"
 #import "MBProgressHUD.h"
 #import "HX_PhotosFooterView.h"
+#define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 @interface HX_PhotosViewController ()<UICollectionViewDataSource,UICollectionViewDelegate>
 @property (weak, nonatomic) UICollectionView *collectionView;
 @property (weak, nonatomic) UIButton *previewBtn;
@@ -123,7 +124,10 @@ static NSString *cellFooterId = @"photoCellFooterId";
     [originalBtn setImage:[UIImage imageNamed:@"activate_friends_seleted@2x.png"] forState:UIControlStateSelected];
     originalBtn.titleEdgeInsets = UIEdgeInsetsMake(0, 7, 0, 0);
     [originalBtn addTarget:self action:@selector(didOriginalClick:) forControlEvents:UIControlEventTouchUpInside];
-    [bottomView addSubview:originalBtn];
+    if (VERSION < 8.0f) {
+        [bottomView addSubview:originalBtn];
+    }
+    
     originalBtn.frame = CGRectMake(65, 0, 200, 45);
     _originalBtn = originalBtn;
     
@@ -142,6 +146,7 @@ static NSString *cellFooterId = @"photoCellFooterId";
     confirmBtn.layer.cornerRadius = 3;
     
     [bottomView addSubview:confirmBtn];
+    
     confirmBtn.frame = CGRectMake(width - 70, 0, 60, 30);
     confirmBtn.center = CGPointMake(confirmBtn.center.x, 22.5);
     _confirmBtn = confirmBtn;

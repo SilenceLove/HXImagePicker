@@ -29,6 +29,7 @@ static BOOL ifOne = YES;
     dispatch_once(&predicate, ^{
         sharedManager = [[self alloc] init];
         sharedManager.videoFileNames = [NSMutableArray array];
+        sharedManager.customName = @"自定义相册";
     });
     return sharedManager;
 }
