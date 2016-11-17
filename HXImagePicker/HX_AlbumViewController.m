@@ -102,14 +102,16 @@ static NSString *albumCellId = @"cellId";
     HX_AssetManager *assetManager = [HX_AssetManager sharedManager];
     HX_VideoManager *videoManager = [HX_VideoManager sharedManager];
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
     __weak typeof(self) weakSelf = self;
-    
+    hud.mode = MBProgressHUDModeIndeterminate;
+    [hud show:YES];
     if (!_ifVideo) {
         [assetManager getAllAlbumWithStart:^{
             
         } WithEnd:^(NSArray *allAlbum,NSArray *images) {
-            
+            [hud hide:YES];
             assetManager.recordOriginal = assetManager.ifOriginal;
             
             [assetManager.recordPhotos removeAllObjects];
@@ -188,9 +190,9 @@ static NSString *albumCellId = @"cellId";
                 vc.cellIndex = model.tableViewIndex;
                 [weakSelf.navigationController pushViewController:vc animated:NO];
             }
-            [hud hide:YES];
-        } WithFailure:^(NSError *error) {
             
+        } WithFailure:^(NSError *error) {
+            hud.mode = MBProgressHUDModeText;
             hud.labelText = @"加载失败";
             [hud hide:YES afterDelay:0.25];
         }];
@@ -198,7 +200,7 @@ static NSString *albumCellId = @"cellId";
         [videoManager getAllAlbumWithStart:^{
             
         } WithEnd:^(NSArray *allAlbum, NSArray *images) {
-            
+            [hud hide:YES];
             weakSelf.allAlbumArray = [NSMutableArray arrayWithArray:allAlbum];
             weakSelf.allImagesAy = [NSMutableArray arrayWithArray:images];
             [weakSelf.tableView reloadData];
@@ -267,9 +269,10 @@ static NSString *albumCellId = @"cellId";
                 vc.cellIndex = model.tableViewIndex;
                 [weakSelf.navigationController pushViewController:vc animated:NO];
             }
-            [hud hide:YES];
+            
             
         } WithFailure:^(NSError *error) {
+            hud.mode = MBProgressHUDModeText;
             hud.labelText = @"加载失败";
             [hud hide:YES afterDelay:0.25];
         }];

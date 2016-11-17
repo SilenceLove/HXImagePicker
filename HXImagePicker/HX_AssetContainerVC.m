@@ -65,7 +65,8 @@ static NSString *containerCellId = @"cellId";
         
         hud.customView = view;
         hud.mode = MBProgressHUDModeCustomView;
-        hud.labelText = @"该图片尚未从iCloud下载，请在系统相册中下载到本地后重新尝试";
+        hud.detailsLabelText = @"该图片尚未从iCloud下载，请在系统相册中下载到本地后重新尝试";
+        hud.detailsLabelFont = [UIFont systemFontOfSize:15];
         hud.margin = 10.f;
         hud.removeFromSuperViewOnHide = YES;
         
@@ -646,16 +647,14 @@ static NSString *containerCellId = @"cellId";
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    
     [self.timer invalidate];
-    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:18/255.0 green:183/255.0 blue:245/255.0 alpha:1]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
     [self.navigationController.navigationBar setBarTintColor:[[UIColor blackColor] colorWithAlphaComponent:0.1]];
 }
 
