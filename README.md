@@ -10,7 +10,7 @@
 【使用CocoaPods】：pod 'HXImagePicker', '~> 0.0.1'----暂时不要用CocoaPods
 
 ###如果是iCloud上的照片会进行下载
-
+- 过段时间会抽空把性能优化一下 (ˇˍˇ)
 <table border = "1">
 <tr>
     <td><img src = "https://github.com/LoveZYForever/HXImagePicker/raw/master/screenshots/xuanzeqi.gif" width = "240" height = "425"></td>
