@@ -124,9 +124,9 @@ static NSString *cellFooterId = @"photoCellFooterId";
     [originalBtn setImage:[UIImage imageNamed:@"activate_friends_seleted@2x.png"] forState:UIControlStateSelected];
     originalBtn.titleEdgeInsets = UIEdgeInsetsMake(0, 7, 0, 0);
     [originalBtn addTarget:self action:@selector(didOriginalClick:) forControlEvents:UIControlEventTouchUpInside];
-    if (VERSION < 8.0f) {
+//    if (VERSION < 8.0f) {
         [bottomView addSubview:originalBtn];
-    }
+//    }
     
     originalBtn.frame = CGRectMake(65, 0, 200, 45);
     _originalBtn = originalBtn;

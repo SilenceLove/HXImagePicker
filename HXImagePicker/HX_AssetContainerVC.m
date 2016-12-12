@@ -54,25 +54,6 @@ static NSString *containerCellId = @"cellId";
 {
     HX_AssetManager *manager = [HX_AssetManager sharedManager];
     HX_PhotoModel *model = self.photoAy[button.tag];
-    if (model.isiCloud) {
-        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-        UIView *view = [[UIView alloc] init];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"qrcode_ar_failed@2x.png"]];
-        [view addSubview:imageView];
-        
-        view.frame = CGRectMake(0, 0, imageView.image.size.width, imageView.image.size.height + 10);
-        
-        hud.customView = view;
-        hud.mode = MBProgressHUDModeCustomView;
-        hud.detailsLabelText = @"该图片尚未从iCloud下载，请在系统相册中下载到本地后重新尝试";
-        hud.detailsLabelFont = [UIFont systemFontOfSize:15];
-        hud.margin = 10.f;
-        hud.removeFromSuperViewOnHide = YES;
-        
-        [hud hide:YES afterDelay:1.5f];
-        return;
-    }
     
     if (!button.selected) {
         if (manager.selectedPhotos.count >= _maxNum) {
@@ -264,9 +245,9 @@ static NSString *containerCellId = @"cellId";
     [originalBtn setImage:[UIImage imageNamed:@"activate_friends_seleted@2x.png"] forState:UIControlStateSelected];
     originalBtn.titleEdgeInsets = UIEdgeInsetsMake(0, 7, 0, 0);
     [originalBtn addTarget:self action:@selector(didOriginalClick:) forControlEvents:UIControlEventTouchUpInside];
-    if (VERSION < 8.0f) {
+//    if (VERSION < 8.0f) {
         [bottomView addSubview:originalBtn];
-    }
+//    }
     
     originalBtn.frame = CGRectMake(10, 0, 200, 45);
     _originalBtn = originalBtn;
