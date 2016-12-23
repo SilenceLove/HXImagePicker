@@ -22,6 +22,7 @@
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
 #define VERSION [[UIDevice currentDevice].systemVersion doubleValue]
 
+static NSInteger numofLinesOld = 1;
 @interface HX_AddPhotoView ()<DragCellCollectionViewDataSource,DragCellCollectionViewDelegate,UIActionSheetDelegate,UIAlertViewDelegate,MBProgressHUDDelegate>
 
 @property (weak, nonatomic) DragCellCollectionView *collectionView;
@@ -798,14 +799,12 @@ static NSString *addPhotoCellId = @"cellId";
     
     self.flowLayout.itemSize = CGSizeMake(itemW, itemW);
     
-    static NSInteger numofLinesOld = 1;
-    
     NSInteger numOfLinesNew = (_photosAy.count / self.lineNum) + 1;
     
     if (_photosAy.count % _lineNum == 0) {
         numOfLinesNew -= 1;
     }
-
+    
     if (numOfLinesNew == 1) {
         self.flowLayout.minimumLineSpacing = 0;
     }else {
@@ -813,11 +812,8 @@ static NSString *addPhotoCellId = @"cellId";
     }
     
     if (numOfLinesNew != numofLinesOld) {
-        
         CGFloat newHeight = numOfLinesNew * itemW + lineSpacing * (numOfLinesNew - 1) + top * 2;
-        
         self.frame = CGRectMake(x, y, width, newHeight);
-
         numofLinesOld = numOfLinesNew;
         if ([self.delegate respondsToSelector:@selector(updateViewFrame:WithView:)]) {
             [self.delegate updateViewFrame:self.frame WithView:self];
@@ -862,7 +858,7 @@ static NSString *addPhotoCellId = @"cellId";
     [manager.allAlbumAy removeAllObjects];
     [manager.allGroup removeAllObjects];
     [manager.videoFileNames removeAllObjects];
-    
+    numofLinesOld = 1;
     
     [HX_VideoManager sharedManager].ifRefresh = YES;
     [[HX_VideoManager sharedManager].videoFileNames removeAllObjects];
