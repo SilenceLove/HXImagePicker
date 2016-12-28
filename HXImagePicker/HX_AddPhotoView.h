@@ -66,6 +66,11 @@ typedef enum{
 @property (copy, nonatomic) void(^selectPhotos)(NSArray *array,NSArray *videoFileNames,BOOL ifOriginal);
 
 /**
+ *  当使用网络图片的时候 各种操作之后的回调 -- 注意用weak修饰,不然会循环引用
+ */
+@property (copy, nonatomic) void(^selectUrlPhotos)(NSArray *selectImgs,NSArray *url,BOOL ifOriginal);
+
+/**
  *  类型为 SelectVideo 时选择、删除、拖动图片之后调用 -- 注意用weak修饰,不然会循环引用
  */
 @property (copy, nonatomic) void(^selectVideo)(NSArray *array,NSArray *videoFileNames);
@@ -77,4 +82,6 @@ typedef enum{
  *  type: 选择的类型
  */
 - (instancetype)initWithMaxPhotoNum:(NSInteger)num WithSelectType:(SelectType)type;
+
+//- (instancetype)initWithWebImageUrls:(NSArray *)urls MaxPhotoNum:(NSInteger)num;
 @end

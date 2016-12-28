@@ -8,6 +8,7 @@
 
 #import "HX_AddPhotoViewCell.h"
 #import "HX_AssetManager.h"
+#import "UIImageView+WebCache.h"
 @interface HX_AddPhotoViewCell ()
 
 @property (weak, nonatomic) UIButton *deleteBtn;
@@ -109,6 +110,16 @@
     if (self.deleteBlock) {
         self.deleteBlock(self);
     }
+}
+
+- (void)setUrl:(NSString *)url
+{
+    _url = url;
+    
+    [self.imageView sd_setImageWithURL:[NSURL URLWithString:url]];
+    self.label.hidden = YES;
+    self.videoTime.hidden = YES;
+    self.videoBgView.hidden = YES;
 }
 
 - (void)setModel:(HX_PhotoModel *)model

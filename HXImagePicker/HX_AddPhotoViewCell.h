@@ -14,4 +14,6 @@
 @property (strong, nonatomic) HX_PhotoModel *model;
 @property (copy, nonatomic) void(^deleteBlock)(UICollectionViewCell *cell);
 @property (assign, nonatomic) NSInteger type;
+@property (assign, nonatomic) BOOL isWebImg;
+@property (copy, nonatomic) NSString *url;
 @end

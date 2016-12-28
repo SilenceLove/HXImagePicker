@@ -485,6 +485,9 @@ static BOOL ifVideoOne = YES;
  */
 - (PHAssetCollection *)collection
 {
+    if (!self.customName) {
+        self.customName = @"自定义相册";
+    }
     // 先从已存在相册中找到自定义相册对象
     PHFetchResult<PHAssetCollection *> *collectionResult = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
     for (PHAssetCollection *collection in collectionResult) {
@@ -671,7 +674,6 @@ static BOOL ifVideoOne = YES;
             PHFetchOptions *option = [[PHFetchOptions alloc] init];
             option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
             option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
-
             
             // 获取所有图片对象
             PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];

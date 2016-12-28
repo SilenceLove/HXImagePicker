@@ -612,6 +612,9 @@ static BOOL ifOne = YES;
 #pragma mark - 获取自定义相册
 - (PHAssetCollection *)collection
 {
+    if (!self.customName) {
+        self.customName = @"自定义相册";
+    }
     // 先从已存在相册中找到自定义相册对象
     PHFetchResult<PHAssetCollection *> *collectionResult = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
     for (PHAssetCollection *collection in collectionResult) {
@@ -672,6 +675,14 @@ static BOOL ifOne = YES;
             }
             return;
         }
+        
+        // 9.0以下的系统保存到之定义相册会发生崩溃
+//        if (VERSION < 9.0f) {
+//            if (completion) {
+//                completion();
+//            }
+//            return;
+//        }
         
         [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
             [[PHAssetCollectionChangeRequest changeRequestForAssetCollection:collection] insertAssets:@[createdAsset] atIndexes:[NSIndexSet indexSetWithIndex:0]];
