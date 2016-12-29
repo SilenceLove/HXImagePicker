@@ -531,6 +531,19 @@ static NSString *addPhotoCellId = @"cellId";
             UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
             [alert show];
         } else {
+            // 获取当前应用对照片的访问授权状态
+            if (VERSION > 8.0f) {
+                if ([PHPhotoLibrary authorizationStatus] != PHAuthorizationStatusAuthorized) {
+                    [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
+                    return;
+                }
+            }else {
+                // 如果没有获取访问授权，或者访问授权状态已经被明确禁止，则显示提示语，引导用户开启授权
+                if ([ALAssetsLibrary authorizationStatus] != ALAuthorizationStatusAuthorized) {
+                    [[[ALAssetsLibrary alloc] init] enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:nil failureBlock:nil];
+                    return;
+                }
+            }
             if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
                 // 跳转到相机或相册页面
                 self.imagePickerController = [[UIImagePickerController alloc] init];
