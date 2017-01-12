@@ -29,7 +29,7 @@
 
 ###选择类型
 - SelectPhoto,        // 只选择图片
-- SelectVideo,        // 只选择视频        选择视频的时候内部强制的只能选择一个
+- SelectVideo,        // 只选择视频        当类型为这个时,选择视频可以多选
 - SelectPhotoAndVideo // 图片视频同时选择
 
 ###代码部分
@@ -110,7 +110,7 @@ addPhotoView.selectNum;
 [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
 
     // 选择视频的沙盒文件路径  -  已压缩
-    NSString *videoFileName = videoFileNames.firstObject;
+    videoFileNames;
     
     [video enumerateObjectsUsingBlock:^(ALAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
         // ios8.0 以下返回的是ALAsset对象

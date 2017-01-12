@@ -59,11 +59,11 @@
     addPhotoView.selectNum;
     
     [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
-        NSLog(@"photo - %@",photos);
+//        NSLog(@"photo - %@",photos);
         
         // 选择视频的沙盒文件路径  -  已压缩
-        NSString *videoFileName = videoFileNames.firstObject;
-        NSLog(@"videoFileNames - %@",videoFileName);
+//        NSString *videoFileName = videoFileNames.firstObject;
+//        NSLog(@"videoFileNames - %@",videoFileNames);
         
         [photos enumerateObjectsUsingBlock:^(id asset, NSUInteger idx, BOOL * _Nonnull stop) {
             
@@ -98,7 +98,7 @@
     }];
     
     // 只选择视频
-    HX_AddPhotoView *addVideoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:1 WithSelectType:SelectVideo];
+    HX_AddPhotoView *addVideoView = [[HX_AddPhotoView alloc] initWithMaxPhotoNum:9 WithSelectType:SelectVideo];
     addVideoView.delegate = self;
     
     addVideoView.frame = CGRectMake(5, 550, width - 10, 0);
@@ -109,8 +109,8 @@
         NSLog(@"video - %@",video);
         
         // 选择视频的沙盒文件路径  -  已压缩
-        NSString *videoFileName = videoFileNames.firstObject;
-        NSLog(@"videoFileNames - %@",videoFileName);
+//        NSString *videoFileName = videoFileNames.firstObject;
+        NSLog(@"videoFileNames - %@",videoFileNames);
         
         [video enumerateObjectsUsingBlock:^(id asset, NSUInteger idx, BOOL * _Nonnull stop) {
             

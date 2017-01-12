@@ -58,8 +58,6 @@ static NSString *addPhotoCellId = @"cellId";
         if (type == SelectPhoto) {
             manager.type = HX_SelectPhoto;
         }else if (type == SelectVideo) {
-            self.maxNum = 1;
-            
             self.ifVideo = YES;
         }else if (type == SelectPhotoAndVideo) {
             manager.type = HX_SelectPhotoAndVieo;
@@ -150,7 +148,6 @@ static NSString *addPhotoCellId = @"cellId";
         for (NSInteger i = self.urls.count; i < self.photosAy.count; i++) {
             [self.photosAy removeObjectAtIndex:i];
         }
-        NSLog(@"%@",self.photosAy);
     }else {
         [self.photosAy removeAllObjects];
     }
@@ -225,9 +222,7 @@ static NSString *addPhotoCellId = @"cellId";
             [self.photosAy addObject:model];
         }
     }else {
-        if (model.type == HX_Video) {
-            ////
-        }else {
+        if (self.ifVideo) {
             if (self.photosAy.count != self.maxNum) {
                 HX_PhotoModel *model = [[HX_PhotoModel alloc] init];
                 model.image = [UIImage imageNamed:@"tianjiatupian@2x.png"];
@@ -240,6 +235,24 @@ static NSString *addPhotoCellId = @"cellId";
                 HX_PhotoModel *model2 = [[HX_PhotoModel alloc] init];
                 model.type = HX_Unknown;
                 [self.photosAy addObject:model2];
+            }
+        }else {
+            if (model.type == HX_Video) {
+                ////
+            }else {
+                if (self.photosAy.count != self.maxNum) {
+                    HX_PhotoModel *model = [[HX_PhotoModel alloc] init];
+                    model.image = [UIImage imageNamed:@"tianjiatupian@2x.png"];
+                    model.ifSelect = NO;
+                    model.type = HX_Unknown;
+                    [self.photosAy addObject:model];
+                }
+                
+                if (count == 0) {
+                    HX_PhotoModel *model2 = [[HX_PhotoModel alloc] init];
+                    model.type = HX_Unknown;
+                    [self.photosAy addObject:model2];
+                }
             }
         }
     }
@@ -282,8 +295,12 @@ static NSString *addPhotoCellId = @"cellId";
         }else {
             [weakSelf.photosAy removeObjectAtIndex:indexP.item];
         }
-        [manager.videoFileNames removeAllObjects];
-        [videoManager.videoFileNames removeAllObjects];
+        if (!weakSelf.ifVideo) {
+            [manager.videoFileNames removeAllObjects];
+        }else {
+            [videoManager.videoFileNames removeObjectAtIndex:indexP.item];
+        }
+        
         if (!weakSelf.ifVideo) {
             if (weakSelf.isWebImg) {
                 if (indexP.item >= weakSelf.urls.count) {
@@ -333,7 +350,12 @@ static NSString *addPhotoCellId = @"cellId";
             
             NSMutableArray *array = [NSMutableArray array];
             [videoManager.selectedPhotos enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
-                [array addObject:model.asset];
+                model.index = idx;
+                if (VERSION < 8.0f) {
+                    [array addObject:model.asset];
+                }else {
+                    [array addObject:model.PH_Asset];
+                }
             }];
             if (weakSelf.selectVideo) {
                 weakSelf.selectVideo(array.mutableCopy,videoManager.videoFileNames);
@@ -384,8 +406,14 @@ static NSString *addPhotoCellId = @"cellId";
             [weakSelf.collectionView reloadData];
         }else {
             NSInteger count = videoManager.selectedPhotos.count;
-            
-            if (weakSelf.photosAy.count != weakSelf.maxNum) {
+            BOOL ifAdd = NO;
+            for (int i = 0; i < weakSelf.photosAy.count; i++) {
+                HX_PhotoModel *modeli = weakSelf.photosAy[i];
+                if (modeli.type == HX_Unknown) {
+                    ifAdd = YES;
+                }
+            }
+            if (weakSelf.photosAy.count != weakSelf.maxNum && !ifAdd) {
                 HX_PhotoModel *model1 = [[HX_PhotoModel alloc] init];
                 model1.image = [UIImage imageNamed:@"tianjiatupian@2x.png"];
                 model1.ifSelect = NO;
@@ -465,6 +493,10 @@ static NSString *addPhotoCellId = @"cellId";
         if (self.photosAy.count == 2 && indexPath.item == 0 && count == 0) {
             [self goAddPhotoVC];
             return;
+        }
+        if (self.photosAy.count <= self.maxNum && indexPath.item == self.photosAy.count - 1) {
+            if (count == self.maxNum) return;
+            [self goAddPhotoVC];
         }
     }
 }

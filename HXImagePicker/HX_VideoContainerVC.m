@@ -215,40 +215,30 @@
         [videoManager.selectedPhotos addObject:_model];
         array = videoManager.selectedPhotos;
     }
-    
-    __block int num = 0;
-    
     __weak typeof(assetManager) weakManager = assetManager;
     __weak typeof(videoManager) weakVideoManager = videoManager;
     __weak typeof(self) weakSelf = self;
-    [array enumerateObjectsUsingBlock:^(HX_PhotoModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
-        num++;
+    HX_PhotoModel *model = array.lastObject;
+    [self compressedVideoWithURL:model.url success:^(NSString *fileName) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf compressedVideoWithURL:model.url success:^(NSString *fileName) {
-            if (!weakSelf.ifVideo) {
-                [weakManager.videoFileNames addObject:fileName];
-            }else {
-                [weakVideoManager.videoFileNames addObject:fileName];
-            }
-            
-            if (num == array.count) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"HX_SureSelectPhotosNotice" object:nil];
-
-                [strongSelf dismissViewControllerAnimated:YES completion:nil];
-            }
-            
-        } failure:^{
-            MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:weakSelf.navigationController.view animated:YES];
-
-            hud.mode = MBProgressHUDModeText;
-            hud.labelText = @"导出视频失败,请重试";
-            hud.margin = 10.f;
-            hud.removeFromSuperViewOnHide = YES;
-
-            [hud hide:YES afterDelay:0.25];
-            button.enabled = YES;
-            _progressBgView.hidden = YES;
-        }];
+        if (!weakSelf.ifVideo) {
+            [weakManager.videoFileNames addObject:fileName];
+        }else {
+            [weakVideoManager.videoFileNames addObject:fileName];
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"HX_SureSelectPhotosNotice" object:nil];
+        [strongSelf dismissViewControllerAnimated:YES completion:nil];
+    } failure:^{
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:weakSelf.navigationController.view animated:YES];
+        
+        hud.mode = MBProgressHUDModeText;
+        hud.labelText = @"导出视频失败,请重试";
+        hud.margin = 10.f;
+        hud.removeFromSuperViewOnHide = YES;
+        
+        [hud hide:YES afterDelay:0.25];
+        button.enabled = YES;
+        _progressBgView.hidden = YES;
     }];
 }
 
