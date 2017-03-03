@@ -54,11 +54,11 @@
     addPhotoView.backgroundColor = [UIColor whiteColor];
     addPhotoView.frame = CGRectMake(0, 150, width - 0, 0);
     [self.view addSubview:addPhotoView];
-    
     /**  当前选择的个数  */
     addPhotoView.selectNum;
-    
+    __weak typeof(self) weakSelf = self;
     [addPhotoView setSelectPhotos:^(NSArray *photos, NSArray *videoFileNames, BOOL iforiginal) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
 //        NSLog(@"photo - %@",photos);
         
         // 选择视频的沙盒文件路径  -  已压缩
@@ -90,6 +90,8 @@
                     if (![info objectForKey:PHImageResultIsDegradedKey]) {
                         // 高清图
                         image;
+                        
+                        NSLog(@"%@",image);
                     }
                 }];
             }
@@ -104,7 +106,6 @@
     addVideoView.frame = CGRectMake(5, 550, width - 10, 0);
     addVideoView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:addVideoView];
-    __weak typeof(self) weakSelf = self;
     [addVideoView setSelectVideo:^(NSArray *video, NSArray *videoFileNames) {
         NSLog(@"video - %@",video);
         
